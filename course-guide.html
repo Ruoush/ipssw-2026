@@ -1,0 +1,2237 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Just in Time Fidelity — Self-Guided Course</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Design Tokens ─────────────────────────────────────────────── */
+    :root {
+      --blue:        #1d6fa4;
+      --blue-light:  #eef5fb;
+      --teal:        #0e8a7f;
+      --teal-light:  #e8f7f6;
+      --amber:       #c47700;
+      --amber-light: #fdf6e3;
+      --red:         #b83232;
+      --red-light:   #fdf0f0;
+      --green:       #2a7a3b;
+      --green-light: #eef8f0;
+      --purple:      #5f3dc4;
+      --purple-light:#f3f0fb;
+      --border:      #d8dde3;
+      --text:        #1a1e23;
+      --muted:       #6b7280;
+      --bg:          #eef1f5;
+      --surface:     #ffffff;
+      --sidebar-bg:  #ffffff;
+      --header-bg:   #1d6fa4;
+      --header-text: #ffffff;
+      --code-bg:     #1a1e23;
+      --code-text:   #e2e8f0;
+      --tip-bg:      #fffbeb;
+      --tip-border:  #f6d860;
+      --tip-text:    #7a5800;
+      --sidebar-w:   220px;
+    }
+
+    [data-theme="dark"] {
+      --blue-light:  #1e3a52;
+      --teal-light:  #0e2e2b;
+      --amber-light: #2a1f06;
+      --red-light:   #2a0f0f;
+      --green-light: #0f2a18;
+      --purple-light:#1a1030;
+      --border:      #2e3440;
+      --text:        #e2e8f0;
+      --muted:       #9ca3af;
+      --bg:          #111827;
+      --surface:     #1f2937;
+      --sidebar-bg:  #1a2332;
+      --header-bg:   #111827;
+      --header-text: #e2e8f0;
+      --code-bg:     #0d1117;
+      --code-text:   #e2e8f0;
+      --tip-bg:      #2a2210;
+      --tip-border:  #856500;
+      --tip-text:    #e2c97e;
+    }
+
+    /* ── Base ───────────────────────────────────────────────────────── */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Georgia, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      font-size: 15px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    /* ── Fixed Header ───────────────────────────────────────────────── */
+    .site-header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      background: var(--header-bg);
+      color: var(--header-text);
+      border-bottom: 1px solid rgba(0,0,0,0.2);
+      height: 52px;
+    }
+    .header-inner {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 20px;
+    }
+    .btn-hamburger {
+      display: none;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: white;
+      border-radius: 6px;
+      width: 34px; height: 34px;
+      font-size: 16px;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .header-title { font-size: 15px; font-weight: 700; }
+    .header-sub   { font-size: 11px; opacity: 0.65; margin-top: 1px; }
+    .lesson-counter {
+      margin-left: auto;
+      font-size: 12px;
+      opacity: 0.75;
+      white-space: nowrap;
+    }
+    .btn-tips {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: white;
+      border-radius: 6px;
+      padding: 5px 11px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .btn-tips:hover { background: rgba(255,255,255,0.25); }
+    .btn-tips.active { background: var(--amber); border-color: var(--amber); }
+    .btn-theme {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: white;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+    .btn-theme:hover { background: rgba(255,255,255,0.25); }
+
+    /* ── App Shell ──────────────────────────────────────────────────── */
+    .app-shell {
+      display: flex;
+      padding-top: 52px;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ────────────────────────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border);
+      position: fixed;
+      top: 52px;
+      bottom: 0;
+      left: 0;
+      overflow-y: auto;
+      transition: transform 0.25s;
+      z-index: 150;
+    }
+    .sidebar-inner { padding: 16px 0 32px; }
+    .sidebar-guide {
+      padding: 10px 16px 14px;
+      font-size: 12px;
+      color: var(--muted);
+      font-style: italic;
+      border-bottom: 1px solid var(--border);
+      line-height: 1.5;
+    }
+    .sidebar-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 14px 16px 6px;
+    }
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 16px;
+      font-size: 13px;
+      color: var(--text);
+      text-decoration: none;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: background 0.12s, border-color 0.12s;
+      line-height: 1.3;
+    }
+    .nav-link:hover { background: var(--blue-light); }
+    .nav-link.active {
+      background: var(--blue-light);
+      border-left-color: var(--blue);
+      color: var(--blue);
+      font-weight: 700;
+    }
+    .nav-link .nav-num {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      flex-shrink: 0;
+      width: 18px;
+      text-align: right;
+    }
+    .nav-link.active .nav-num { color: var(--blue); }
+
+    /* Sidebar overlay for mobile */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 140;
+    }
+    .sidebar-overlay.visible { display: block; }
+
+    /* ── Main Content ───────────────────────────────────────────────── */
+    .main {
+      flex: 1;
+      margin-left: var(--sidebar-w);
+      min-width: 0;
+    }
+    .lesson-area {
+      max-width: 720px;
+      padding: 36px 32px 80px;
+    }
+
+    /* ── Section Visibility ─────────────────────────────────────────── */
+    .lesson-section { display: none; }
+    .lesson-section.active { display: block; animation: fadeIn 0.2s; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+    /* ── Lesson Header ──────────────────────────────────────────────── */
+    .lesson-header { margin-bottom: 28px; }
+    .lesson-eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 2.5px;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
+    }
+    .lesson-title {
+      font-size: 26px; font-weight: 800; line-height: 1.2;
+      color: var(--text); margin-bottom: 8px;
+    }
+    .lesson-desc { font-size: 15px; color: var(--muted); line-height: 1.6; }
+
+    /* ── Content Blocks ─────────────────────────────────────────────── */
+    .content-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 22px 24px;
+      margin-bottom: 20px;
+    }
+    .content-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 12px; color: var(--text); }
+    .content-card p { font-size: 14px; margin-bottom: 10px; line-height: 1.65; }
+    .content-card p:last-child { margin-bottom: 0; }
+    .content-card ul, .content-card ol { padding-left: 20px; font-size: 14px; }
+    .content-card li { margin-bottom: 6px; line-height: 1.55; }
+
+    .card-blue   { border-left: 4px solid var(--blue);   background: var(--blue-light); }
+    .card-teal   { border-left: 4px solid var(--teal);   background: var(--teal-light); }
+    .card-amber  { border-left: 4px solid var(--amber);  background: var(--amber-light); }
+    .card-green  { border-left: 4px solid var(--green);  background: var(--green-light); }
+    .card-purple { border-left: 4px solid var(--purple); background: var(--purple-light); }
+    .card-red    { border-left: 4px solid var(--red);    background: var(--red-light); }
+
+    /* ── Objectives ─────────────────────────────────────────────────── */
+    .objectives { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .objectives li {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 10px 14px; background: var(--blue-light);
+      border-left: 3px solid var(--blue); border-radius: 0 6px 6px 0; font-size: 14px;
+    }
+    .objectives li .obj-icon { flex-shrink: 0; }
+
+    /* ── Prompt Cards ───────────────────────────────────────────────── */
+    .prompt-card { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
+    .prompt-card-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; background: var(--bg); border-bottom: 1px solid var(--border);
+    }
+    .prompt-number {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--blue); color: white;
+      font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .prompt-card-header .prompt-title { font-weight: 700; font-size: 14px; }
+    .prompt-card-header .prompt-when  { margin-left: auto; font-size: 12px; color: var(--muted); }
+    .prompt-body { padding: 14px; background: var(--surface); }
+    .prompt-template {
+      background: var(--code-bg); color: var(--code-text);
+      border-radius: 6px; padding: 14px 16px;
+      font-family: 'Menlo', 'Consolas', monospace;
+      font-size: 13px; line-height: 1.65; white-space: pre-wrap; margin-bottom: 10px;
+    }
+    .prompt-tip { font-size: 13px; color: var(--muted); font-style: italic; }
+
+    /* ── Callout ────────────────────────────────────────────────────── */
+    .callout {
+      display: flex; gap: 12px; align-items: flex-start;
+      background: var(--tip-bg); border: 1px solid var(--tip-border);
+      border-radius: 8px; padding: 12px 16px; margin: 16px 0;
+      font-size: 13px; color: var(--tip-text);
+    }
+    .callout .callout-icon { font-size: 18px; flex-shrink: 0; }
+
+    /* ── Facilitator Tips ───────────────────────────────────────────── */
+    .fac-tips-block {
+      display: none;
+      border-left: 4px solid var(--amber); background: var(--amber-light);
+      border-radius: 0 8px 8px 0; padding: 16px 20px; margin: 16px 0; font-size: 13px;
+    }
+    .fac-tips-block.visible { display: block; }
+    .fac-tips-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--amber); margin-bottom: 8px;
+    }
+    .fac-tips-block p { font-size: 13px; margin-bottom: 8px; }
+    .fac-tips-block p:last-child { margin-bottom: 0; }
+    .fac-tips-block ul, .fac-tips-block ol { padding-left: 18px; font-size: 13px; }
+    .fac-tips-block li { margin-bottom: 5px; }
+    .fac-tips-block strong { font-weight: 700; }
+
+    /* ── Activity Steps ─────────────────────────────────────────────── */
+    .activity-steps { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+    .activity-step { display: flex; gap: 14px; align-items: flex-start; }
+    .step-num {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--amber); color: white;
+      font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .step-content strong { display: block; font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+    .step-content p { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+
+    /* ── Scenario Chips ─────────────────────────────────────────────── */
+    .idea-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 10px; margin-top: 14px;
+    }
+    .idea-chip {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 12px;
+      font-size: 13px; text-align: center; color: var(--text);
+    }
+    .idea-chip .chip-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+
+    /* ── Trouble Items ──────────────────────────────────────────────── */
+    .trouble-item { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 12px; }
+    .trouble-problem {
+      padding: 10px 14px; background: var(--amber-light);
+      font-size: 13px; font-weight: 700; color: var(--amber);
+      border-bottom: 1px solid var(--border);
+    }
+    .trouble-fix { padding: 12px 14px; font-size: 13px; background: var(--surface); line-height: 1.6; }
+
+    /* ── Resource Cards ─────────────────────────────────────────────── */
+    .resource-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;
+    }
+    .resource-card { border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; background: var(--surface); }
+    .resource-card .resource-icon { font-size: 22px; margin-bottom: 8px; }
+    .resource-card .resource-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+    .resource-card .resource-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+    /* ── Glossary ───────────────────────────────────────────────────── */
+    .glossary-item { padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .glossary-item:last-child { border-bottom: none; }
+    .glossary-term { font-size: 15px; font-weight: 700; color: var(--blue); margin-bottom: 4px; }
+    .glossary-def { font-size: 14px; line-height: 1.6; }
+
+    /* ── Setup Option Rows ──────────────────────────────────────────── */
+    .option-row { display: flex; align-items: flex-start; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .option-row:last-child { border-bottom: none; }
+    .option-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+    .option-name { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+    .option-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .rec-badge {
+      display: inline-block; background: var(--green); color: white;
+      font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      border-radius: 4px; padding: 2px 7px; margin-left: 6px; vertical-align: middle;
+    }
+
+    /* ── Misc ───────────────────────────────────────────────────────── */
+    code {
+      background: var(--code-bg); color: var(--code-text);
+      font-family: 'Menlo', 'Consolas', monospace;
+      font-size: 12px; padding: 1px 5px; border-radius: 4px;
+    }
+    pre.code-block {
+      background: var(--code-bg); color: var(--code-text);
+      border-radius: 6px; padding: 14px 16px;
+      font-family: 'Menlo', 'Consolas', monospace;
+      font-size: 13px; line-height: 1.65; white-space: pre-wrap; overflow-x: auto;
+    }
+    hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+    .checklist { list-style: none; }
+    .checklist li {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px;
+    }
+    .checklist li:last-child { border-bottom: none; }
+    .checklist .check { color: var(--green); font-size: 16px; flex-shrink: 0; }
+    .debrief-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .debrief-list li {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; padding: 12px 16px; font-size: 14px;
+    }
+    .completion-card {
+      background: var(--green); color: white;
+      border-radius: 12px; padding: 28px 32px; margin-bottom: 20px;
+    }
+    .completion-card h2 { font-size: 20px; font-weight: 800; margin-bottom: 10px; }
+    .completion-card p { font-size: 14px; opacity: 0.92; margin-bottom: 8px; }
+    .completion-card p:last-child { margin-bottom: 0; }
+
+    /* ── Prev / Next ────────────────────────────────────────────────── */
+    .lesson-nav {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 32px; margin-top: 32px; border-top: 1px solid var(--border); gap: 12px;
+    }
+    .btn-nav {
+      background: var(--blue); color: white; border: none;
+      border-radius: 8px; padding: 10px 20px;
+      font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: opacity 0.15s;
+    }
+    .btn-nav:hover { opacity: 0.85; }
+    .btn-nav:disabled, .btn-nav.disabled {
+      background: var(--border); color: var(--muted); cursor: default; opacity: 1;
+    }
+    .nav-lesson-label { font-size: 12px; color: var(--muted); text-align: center; flex: 1; }
+
+    strong { font-weight: 700; }
+    em { color: var(--muted); font-style: italic; }
+    a { color: var(--blue); }
+    a:hover { text-decoration: underline; }
+
+    /* ── Mobile ─────────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); box-shadow: 4px 0 20px rgba(0,0,0,0.3); }
+      .main { margin-left: 0; }
+      .btn-hamburger { display: flex; }
+      .lesson-area { padding: 24px 18px 64px; }
+      .lesson-title { font-size: 22px; }
+    }
+    @media (max-width: 480px) {
+      .header-inner { padding: 0 12px; }
+      .lesson-area { padding: 18px 14px 56px; }
+      .resource-grid { grid-template-columns: 1fr 1fr; }
+      .idea-grid { grid-template-columns: 1fr 1fr; }
+      .btn-tips { display: none; }
+      .editor-mock-body { height: auto; min-height: 120px; }
+      .editor-mock-actbar { display: none; }
+      .editor-mock-sidebar { width: 90px; }
+    }
+
+    /* ── Terminal Mock ───────────────────────────────────────────────── */
+    .terminal-mock {
+      background: #1a1e23;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 12px 0;
+      font-family: 'Menlo', 'Consolas', monospace;
+      font-size: 12.5px;
+      line-height: 1.7;
+    }
+    .terminal-titlebar {
+      background: #2d2d2d;
+      padding: 7px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .terminal-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .terminal-dot.red    { background: #ff5f56; }
+    .terminal-dot.yellow { background: #ffbd2e; }
+    .terminal-dot.green  { background: #27c93f; }
+    .terminal-label {
+      color: #999; font-size: 11px; margin: 0 auto;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    .terminal-body { padding: 12px 16px; color: #e2e8f0; }
+    .t-prompt { color: #27c93f; }
+    .t-cmd    { color: #e2e8f0; }
+    .t-out    { color: #6b7280; }
+
+    /* ── Terminal Collapsible ────────────────────────────────────────── */
+    details.terminal-optional {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+    details.terminal-optional summary {
+      padding: 11px 16px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      background: var(--bg);
+      list-style: none;
+      user-select: none;
+    }
+    details.terminal-optional summary::-webkit-details-marker { display: none; }
+    details.terminal-optional summary::before { content: '▶  '; font-size: 10px; }
+    details.terminal-optional[open] summary::before { content: '▼  '; }
+    details.terminal-optional .terminal-content { padding: 16px 20px 20px; }
+
+    /* ── Editor Guide (expandable) ──────────────────────────────────── */
+    details.editor-guide {
+      margin-top: 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    details.editor-guide summary {
+      padding: 9px 14px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--blue);
+      background: var(--blue-light);
+      list-style: none;
+      user-select: none;
+    }
+    details.editor-guide summary::-webkit-details-marker { display: none; }
+    details.editor-guide summary::before { content: '▶  '; font-size: 10px; }
+    details.editor-guide[open] summary::before { content: '▼  '; }
+    details.editor-guide .guide-body {
+      padding: 16px;
+      font-size: 13px;
+      background: var(--surface);
+    }
+    details.editor-guide .guide-body p  { margin-bottom: 8px; color: var(--text); }
+    details.editor-guide .guide-body ul,
+    details.editor-guide .guide-body ol { padding-left: 18px; margin-bottom: 10px; }
+    details.editor-guide .guide-body li { margin-bottom: 5px; color: var(--text); }
+
+    /* ── Editor Mockup ──────────────────────────────────────────────── */
+    .editor-mock {
+      border: 1px solid #404040;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 14px 0 10px;
+      font-size: 11px;
+    }
+    .editor-mock-titlebar {
+      background: #3c3c3c;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .em-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .em-dot.red    { background: #ff5f56; }
+    .em-dot.yellow { background: #ffbd2e; }
+    .em-dot.green  { background: #27c93f; }
+    .em-title {
+      color: #ccc; font-size: 11px; margin: 0 auto;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    .editor-mock-body { display: flex; height: 150px; }
+    .editor-mock-actbar {
+      width: 36px; flex-shrink: 0;
+      background: #333333;
+      border-right: 1px solid #404040;
+      display: flex; flex-direction: column; align-items: center;
+      padding-top: 8px; gap: 10px;
+    }
+    .em-act-icon {
+      width: 22px; height: 22px;
+      background: #555; border-radius: 4px;
+      font-size: 12px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .em-act-icon.active { background: var(--blue); }
+    .editor-mock-sidebar {
+      width: 110px; flex-shrink: 0;
+      background: #252526;
+      border-right: 1px solid #404040;
+      padding: 6px 0; overflow: hidden;
+    }
+    .em-sidebar-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; color: #aaa;
+      padding: 2px 8px 4px;
+      font-family: -apple-system, sans-serif;
+    }
+    .em-folder {
+      padding: 2px 8px; color: #ccc;
+      font-size: 11px; font-family: 'Menlo', monospace; white-space: nowrap;
+    }
+    .em-file {
+      padding: 2px 8px 2px 18px; color: #9cdcfe;
+      font-size: 11px; font-family: 'Menlo', monospace; white-space: nowrap;
+    }
+    .em-file.active { background: #094771; }
+    .editor-mock-main {
+      flex: 1; background: #1e1e1e;
+      padding: 8px 12px; overflow: hidden;
+    }
+    .em-line {
+      display: flex; gap: 10px; line-height: 1.65;
+      font-family: 'Menlo', 'Consolas', monospace; font-size: 11px;
+    }
+    .em-num     { color: #4a4a4a; width: 14px; text-align: right; flex-shrink: 0; }
+    .em-tag     { color: #569cd6; }
+    .em-attr    { color: #9cdcfe; }
+    .em-val     { color: #ce9178; }
+    .em-comment { color: #6a9955; }
+    .em-text    { color: #d4d4d4; }
+    .editor-mock-legend {
+      display: flex; gap: 6px; flex-wrap: wrap;
+      margin-top: 6px; font-size: 11px;
+      font-family: -apple-system, sans-serif; color: var(--muted);
+    }
+    .em-legend-item { display: flex; align-items: center; gap: 4px; }
+    .em-legend-swatch { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+    /* ── Planning Form ───────────────────────────────────────────────── */
+    .planning-form {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 18px;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    .planning-form .plan-row {
+      display: flex; align-items: baseline;
+      gap: 10px; padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .planning-form .plan-row:last-child { border-bottom: none; }
+    .planning-form .plan-label { font-weight: 600; white-space: nowrap; flex-shrink: 0; }
+    .planning-form .plan-line {
+      flex: 1; border-bottom: 1px dashed var(--border);
+      min-height: 18px;
+    }
+    .planning-form .plan-features {
+      display: flex; gap: 8px; flex: 1; flex-wrap: wrap;
+    }
+    .planning-form .plan-feature-slot {
+      flex: 1; min-width: 80px;
+      border-bottom: 1px dashed var(--border); min-height: 18px;
+    }
+
+    /* Time badge */
+    .time-badge {
+      display: inline-block; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 20px; padding: 2px 10px; font-size: 11px;
+      color: var(--muted); font-weight: 600; margin-top: 8px;
+    }
+
+    /* Build Loop */
+    .build-loop { display: flex; align-items: center; gap: 6px; margin: 16px 0; flex-wrap: wrap; }
+    .loop-step {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+      padding: 12px 14px; text-align: center; flex: 1; min-width: 100px;
+    }
+    .loop-num {
+      width: 24px; height: 24px; background: var(--blue); color: white; border-radius: 50%;
+      font-size: 12px; font-weight: 700; display: flex; align-items: center;
+      justify-content: center; margin: 0 auto 6px;
+    }
+    .loop-label { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+    .loop-desc { font-size: 11px; color: var(--muted); }
+    .loop-arrow { font-size: 18px; color: var(--muted); flex-shrink: 0; }
+
+    /* Course Map */
+    .course-map table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .course-map th {
+      text-align: left; padding: 8px 12px; background: var(--bg);
+      border-bottom: 2px solid var(--border); font-size: 11px;
+      text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 700;
+    }
+    .course-map td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .course-map tr:last-child td { border-bottom: none; }
+    .course-map .col-title { font-weight: 700; }
+    .course-map .col-time { white-space: nowrap; color: var(--muted); font-size: 12px; }
+
+    /* Editable Template */
+    .template-editor {
+      width: 100%; background: var(--code-bg); color: var(--code-text);
+      border: none; border-radius: 6px; padding: 14px 16px;
+      font-family: 'Menlo', 'Consolas', monospace; font-size: 13px;
+      line-height: 1.65; resize: vertical; outline: none; display: block;
+      box-sizing: border-box;
+    }
+    .template-editor-wrap { position: relative; margin-top: 10px; }
+    .btn-copy {
+      position: absolute; top: 8px; right: 8px;
+      background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+      color: white; border-radius: 5px; padding: 4px 10px;
+      font-size: 11px; font-weight: 600; cursor: pointer;
+    }
+    .btn-copy:hover { background: rgba(255,255,255,0.25); }
+
+    /* Browser Mock (L7) */
+    .browser-mock { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin: 14px 0; }
+    .browser-mock-bar {
+      background: #3c3c3c; padding: 7px 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .browser-mock-dots { display: flex; gap: 5px; }
+    .browser-mock-url {
+      flex: 1; background: #1e1e1e; border-radius: 12px;
+      padding: 4px 12px; font-size: 11.5px;
+      font-family: 'Menlo', 'Consolas', monospace; color: #9cdcfe;
+    }
+    .browser-mock-body {
+      background: #f0f4f8; padding: 16px 20px; min-height: 60px;
+      color: var(--text); font-size: 13px;
+    }
+    [data-theme="dark"] .browser-mock-body { background: var(--surface); }
+
+    /* Mobile additions */
+    @media (max-width: 480px) {
+      .loop-arrow { display: none; }
+      .loop-step { min-width: calc(50% - 12px); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Fixed Header ───────────────────────────────────────────────────── -->
+<header class="site-header">
+  <div class="header-inner">
+    <button class="btn-hamburger" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+    <div>
+      <div class="header-title">Just in Time Fidelity</div>
+      <div class="header-sub">Self-Guided Course · IPSSW 2026</div>
+    </div>
+    <div class="lesson-counter" id="lessonCounter">Getting Started</div>
+    <button class="btn-tips" id="btnTips" onclick="toggleFacilitatorTips()">🎓 Facilitator Tips</button>
+    <button class="btn-theme" onclick="toggleTheme()">🌙</button>
+  </div>
+</header>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<div class="app-shell">
+
+  <!-- ── Sidebar ──────────────────────────────────────────────────────── -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-inner">
+      <div class="sidebar-guide">
+        New to AI? Start at the top.<br>
+        Already vibe-coding? Jump to Lesson 3.
+      </div>
+      <div class="sidebar-section-label">Setup &amp; Reference</div>
+      <a class="nav-link" onclick="showLesson('getting-started')"><span>⚙️</span> Getting Started</a>
+      <a class="nav-link" onclick="showLesson('glossary')"><span>📖</span> Glossary</a>
+      <div class="sidebar-section-label">Course</div>
+      <a class="nav-link" onclick="showLesson('lesson-1')"><span class="nav-num">1</span> What Is JITF?</a>
+      <a class="nav-link" onclick="showLesson('lesson-2')"><span class="nav-num">2</span> See It in Action</a>
+      <a class="nav-link" onclick="showLesson('lesson-3')"><span class="nav-num">3</span> How to Talk to AI</a>
+      <a class="nav-link" onclick="showLesson('lesson-4')"><span class="nav-num">4</span> Build Your Own Tool</a>
+      <a class="nav-link" onclick="showLesson('lesson-5')"><span class="nav-num">5</span> Share &amp; Reflect</a>
+      <a class="nav-link" onclick="showLesson('lesson-6')"><span class="nav-num">6</span> Resources &amp; Next Steps</a>
+      <a class="nav-link" onclick="showLesson('lesson-7')"><span class="nav-num">7</span> Publish Your Tool</a>
+      <a class="nav-link" onclick="showLesson('lesson-8')"><span class="nav-num">8</span> Troubleshooting</a>
+      <div style="padding:4px 16px 8px 40px;font-size:11px;color:var(--muted);font-style:italic;">Reference — jump here anytime</div>
+    </div>
+  </nav>
+
+  <!-- ── Main ─────────────────────────────────────────────────────────── -->
+  <main class="main">
+    <div class="lesson-area">
+
+      <!-- ═══════════════════════════════════════════════════════════════
+           GETTING STARTED
+      ═══════════════════════════════════════════════════════════════ -->
+      <section class="lesson-section active" id="sec-getting-started">
+        <div class="lesson-header">
+          <div class="lesson-eyebrow">Setup &amp; Reference</div>
+          <h1 class="lesson-title">Getting Started</h1>
+          <p class="lesson-desc">Make sure you have the tools you need. Works as pre-work before a live workshop, or a first stop for solo learners.</p>
+          <span class="time-badge">~10 min</span>
+        </div>
+
+        <div class="fac-tips-block" data-tips="getting-started">
+          <div class="fac-tips-label">Facilitator Tips — Getting Started</div>
+          <p><strong>Timing:</strong> If sent as pre-work, learners complete Steps 1–2 before the session (~10 min). If doing it live, allow 10 minutes at the start. Step 3 (Terminal) is optional — don't spend time on it unless a learner specifically asks.</p>
+          <p><strong>Most common issue:</strong> Learners who didn't create an AI account before arriving. Have Claude, ChatGPT, or Gemini bookmarked so they can sign up quickly.</p>
+          <p><strong>Framing:</strong> Emphasize that all tools are free and no credit card is required. Some learners are cautious about signing up for AI services — normalize it by sharing that the free tier is fully sufficient.</p>
+        </div>
+
+        <div class="content-card card-blue">
+          <h3 class="card-title">What We'll Cover</h3>
+          <div class="course-map">
+            <table>
+              <thead>
+                <tr>
+                  <th class="col-title">Section</th>
+                  <th>What you'll do</th>
+                  <th class="col-time">Time</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="col-title">Getting Started</td><td>Set up your AI tool and code editor</td><td class="col-time">~10 min</td></tr>
+                <tr><td class="col-title">Lesson 1 — What Is JITF?</td><td>Understand the Just in Time Fidelity approach and what HTML tools can do</td><td class="col-time">~10 min</td></tr>
+                <tr><td class="col-title">Lesson 2 — See It in Action</td><td>Explore a working AED simulator and understand how it was built</td><td class="col-time">~10 min</td></tr>
+                <tr><td class="col-title">Lesson 3 — How to Talk to AI</td><td>Learn prompt templates and draft your first real prompt</td><td class="col-time">~15 min</td></tr>
+                <tr><td class="col-title">Lesson 4 — Build Your Own Tool</td><td>Use AI to build a working simulation tool for your scenario</td><td class="col-time">~30 min</td></tr>
+                <tr><td class="col-title">Lesson 5 — Share &amp; Reflect</td><td>Demo your tool, give feedback, and discuss what worked</td><td class="col-time">~15 min</td></tr>
+                <tr><td class="col-title">Lesson 6 — Resources &amp; Next Steps</td><td>Explore tools, communities, and ideas for going further</td><td class="col-time">~10 min</td></tr>
+                <tr><td class="col-title">Lesson 7 — Publish Your Tool</td><td>Deploy to GitHub + Vercel and get a shareable URL</td><td class="col-time">~20 min</td></tr>
+                <tr><td class="col-title">Lesson 8 — Troubleshooting</td><td>Reference guide for common issues — jump here anytime</td><td class="col-time">Reference</td></tr>
+                <tr><td class="col-title">Glossary</td><td>Key terms and definitions</td><td class="col-time">Reference</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="content-card">
+          <h3>1. Create an AI Account</h3>
+          <p>The workshop uses agentic AI tools to generate HTML simulation tools from plain-language descriptions. You'll need a free account with at least one of the options below.</p>
+          <div class="option-row">
+            <div class="option-icon"><svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block"><rect width="28" height="28" rx="6" fill="#C95B21"/><path d="M14 5.5L22 20.5H6L14 5.5Z" fill="white"/><path d="M14 12.5L18 20.5H10L14 12.5Z" fill="#C95B21"/></svg></div>
+            <div>
+              <div class="option-name">Claude <span class="rec-badge">Recommended</span></div>
+              <div class="option-desc">Go to <a href="https://claude.ai" target="_blank"><strong>claude.ai</strong></a> → Sign Up → free tier available. Claude tends to generate complete, clean HTML in one shot — the AI used in the live demo.</div>
+            </div>
+          </div>
+          <div class="option-row">
+            <div class="option-icon"><svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block"><rect width="28" height="28" rx="6" fill="#10A37F"/><circle cx="14" cy="14" r="6.5" stroke="white" stroke-width="1.5" fill="none"/><path d="M11 14C11 11.8 12.8 10 15 10" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/><path d="M17 14C17 16.2 15.2 18 13 18" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg></div>
+            <div>
+              <div class="option-name">ChatGPT</div>
+              <div class="option-desc">Go to <a href="https://chat.openai.com" target="_blank"><strong>chat.openai.com</strong></a> → Sign Up → free tier available. Widely used and works well with the prompt templates in this course.</div>
+            </div>
+          </div>
+          <div class="option-row">
+            <div class="option-icon"><svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block"><rect width="28" height="28" rx="6" fill="#4285F4"/><path d="M14 5L15.7 12.3L23 14L15.7 15.7L14 23L12.3 15.7L5 14L12.3 12.3Z" fill="white"/></svg></div>
+            <div>
+              <div class="option-name">Gemini</div>
+              <div class="option-desc">Go to <a href="https://gemini.google.com" target="_blank"><strong>gemini.google.com</strong></a> → Sign in with Google → free to use. Good option if you're already in the Google ecosystem.</div>
+            </div>
+          </div>
+          <div class="callout" style="margin-top:14px;margin-bottom:0;">
+            <span class="callout-icon">💡</span>
+            <div>All three work with the prompt templates in this course. You only need one account.</div>
+          </div>
+        </div>
+
+        <div class="content-card">
+          <h3>2. Install a Code Editor</h3>
+          <p>You'll paste AI output into a file and save it as <code>.html</code>. A code editor reduces the chance of accidentally breaking the file. Once saved, open your HTML file by double-clicking it — it will open in your default browser.</p>
+          <div class="option-row">
+            <div class="option-icon">⚡</div>
+            <div>
+              <div class="option-name">Cursor <span class="rec-badge">Recommended</span></div>
+              <div class="option-desc">AI-native editor built on VS Code. Download free at <a href="https://cursor.com" target="_blank"><strong>cursor.com</strong></a>. Makes it easy to paste, preview, and iterate on HTML files.
+                <details class="editor-guide">
+                  <summary>Getting started with Cursor</summary>
+                  <div class="guide-body">
+                    <div class="editor-mock">
+                      <div class="editor-mock-titlebar">
+                        <span class="em-dot red"></span>
+                        <span class="em-dot yellow"></span>
+                        <span class="em-dot green"></span>
+                        <span class="em-title">Cursor</span>
+                      </div>
+                      <div class="editor-mock-body">
+                        <div class="editor-mock-actbar">
+                          <div class="em-act-icon active">📁</div>
+                          <div class="em-act-icon">🔍</div>
+                          <div class="em-act-icon">⚙️</div>
+                        </div>
+                        <div class="editor-mock-sidebar">
+                          <div class="em-sidebar-label">Explorer</div>
+                          <div class="em-folder">📁 my-sim-tools</div>
+                          <div class="em-file active">📄 my-tool.html</div>
+                        </div>
+                        <div class="editor-mock-main">
+                          <div class="em-line"><span class="em-num">1</span><span class="em-tag">&lt;!DOCTYPE html&gt;</span></div>
+                          <div class="em-line"><span class="em-num">2</span><span class="em-tag">&lt;html <span class="em-attr">lang</span>=<span class="em-val">"en"</span>&gt;</span></div>
+                          <div class="em-line"><span class="em-num">3</span><span class="em-tag">&lt;head&gt;</span></div>
+                          <div class="em-line"><span class="em-num">4</span><span class="em-comment">&nbsp;&nbsp;&lt;!-- paste AI code here --&gt;</span></div>
+                          <div class="em-line"><span class="em-num">5</span><span class="em-tag">&lt;/head&gt;</span></div>
+                          <div class="em-line"><span class="em-num">6</span><span class="em-tag">&lt;body&gt;</span></div>
+                          <div class="em-line"><span class="em-num">7</span><span class="em-text">&nbsp;&nbsp;...</span></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="editor-mock-legend">
+                      <span class="em-legend-item"><span class="em-legend-swatch" style="background:#094771;"></span> Active file</span>
+                      <span style="color:var(--border)">·</span>
+                      <span class="em-legend-item"><span class="em-legend-swatch" style="background:#252526;"></span> File explorer</span>
+                      <span style="color:var(--border)">·</span>
+                      <span class="em-legend-item"><span class="em-legend-swatch" style="background:#1e1e1e;"></span> Editor area</span>
+                    </div>
+                    <p style="margin-top:12px;"><strong>Setup steps:</strong></p>
+                    <ol>
+                      <li>Open Cursor → <strong>File → Open Folder</strong> → create or choose a folder on your Desktop (e.g., "my-sim-tools")</li>
+                      <li>Create a new file: click the <strong>New File</strong> icon in the sidebar → name it anything ending in <code>.html</code></li>
+                      <li>Paste your AI-generated code into the editor area</li>
+                      <li>Save: <strong>Cmd+S</strong> (Mac) or <strong>Ctrl+S</strong> (Windows)</li>
+                      <li>Double-click the file in Finder/Explorer to open it in your browser</li>
+                    </ol>
+                  </div>
+                </details>
+              </div>
+            </div>
+          </div>
+          <div class="option-row">
+            <div class="option-icon">📝</div>
+            <div>
+              <div class="option-name">VS Code</div>
+              <div class="option-desc">Industry-standard free code editor. Download at <a href="https://code.visualstudio.com" target="_blank"><strong>code.visualstudio.com</strong></a>. Great option if you already have it installed.
+                <details class="editor-guide">
+                  <summary>Getting started with VS Code</summary>
+                  <div class="guide-body">
+                    <div class="editor-mock">
+                      <div class="editor-mock-titlebar">
+                        <span class="em-dot red"></span>
+                        <span class="em-dot yellow"></span>
+                        <span class="em-dot green"></span>
+                        <span class="em-title">Visual Studio Code</span>
+                      </div>
+                      <div class="editor-mock-body">
+                        <div class="editor-mock-actbar">
+                          <div class="em-act-icon active">📁</div>
+                          <div class="em-act-icon">🔍</div>
+                          <div class="em-act-icon">🧩</div>
+                          <div class="em-act-icon">⚙️</div>
+                        </div>
+                        <div class="editor-mock-sidebar">
+                          <div class="em-sidebar-label">Explorer</div>
+                          <div class="em-folder">📁 my-sim-tools</div>
+                          <div class="em-file active">📄 my-tool.html</div>
+                        </div>
+                        <div class="editor-mock-main">
+                          <div class="em-line"><span class="em-num">1</span><span class="em-tag">&lt;!DOCTYPE html&gt;</span></div>
+                          <div class="em-line"><span class="em-num">2</span><span class="em-tag">&lt;html <span class="em-attr">lang</span>=<span class="em-val">"en"</span>&gt;</span></div>
+                          <div class="em-line"><span class="em-num">3</span><span class="em-tag">&lt;head&gt;</span></div>
+                          <div class="em-line"><span class="em-num">4</span><span class="em-comment">&nbsp;&nbsp;&lt;!-- paste AI code here --&gt;</span></div>
+                          <div class="em-line"><span class="em-num">5</span><span class="em-tag">&lt;/head&gt;</span></div>
+                          <div class="em-line"><span class="em-num">6</span><span class="em-tag">&lt;body&gt;</span></div>
+                          <div class="em-line"><span class="em-num">7</span><span class="em-text">&nbsp;&nbsp;...</span></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="editor-mock-legend">
+                      <span class="em-legend-item"><span class="em-legend-swatch" style="background:#094771;"></span> Active file</span>
+                      <span style="color:var(--border)">·</span>
+                      <span class="em-legend-item"><span class="em-legend-swatch" style="background:#252526;"></span> File explorer</span>
+                      <span style="color:var(--border)">·</span>
+                      <span class="em-legend-item"><span class="em-legend-swatch" style="background:#1e1e1e;"></span> Editor area</span>
+                    </div>
+                    <p style="margin-top:12px;"><strong>Setup steps:</strong></p>
+                    <ol>
+                      <li>Open VS Code → <strong>File → Open Folder</strong> → create or choose a folder on your Desktop</li>
+                      <li>Create a new file: <strong>File → New File</strong> → name it anything ending in <code>.html</code></li>
+                      <li>Paste your AI-generated code into the editor area</li>
+                      <li>Save: <strong>Cmd+S</strong> (Mac) or <strong>Ctrl+S</strong> (Windows)</li>
+                      <li>Double-click the file in Finder/Explorer to open it in your browser</li>
+                    </ol>
+                    <p><strong>Optional:</strong> Install the <strong>Live Preview</strong> extension to preview HTML directly inside VS Code.</p>
+                  </div>
+                </details>
+              </div>
+            </div>
+          </div>
+          <div class="callout callout-tip" style="margin: 12px 0 4px;">
+            <strong>Advanced option — Claude Code:</strong> If you're using Cursor, Claude Code runs directly in Cursor's terminal as an alternative to the browser AI interface. More powerful for iteration. Requires Claude Pro ($20/mo). Not needed for this workshop — worth exploring after.
+          </div>
+          <div class="option-row">
+            <div class="option-icon">📄</div>
+            <div>
+              <div class="option-name">TextEdit (Mac) / Notepad (Windows)</div>
+              <div class="option-desc"><strong>Mac:</strong> Format → Make Plain Text before saving. Save with <code>.html</code> extension. <strong>Windows:</strong> Set "Save as type" to All Files, and name the file <code>"my-tool.html"</code> (with quotes) to prevent <code>.txt</code> being appended.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-card">
+          <h3>3. Terminal Access <em style="font-size:12px;font-weight:400;color:var(--muted);">(optional)</em></h3>
+          <p>A terminal lets you type commands to control your computer. <strong>You don't need it for this workshop</strong> — everything can be done by double-clicking files and using the menus in your code editor. It's included here as a reference for those who want it.</p>
+          <details class="terminal-optional">
+            <summary>Show terminal instructions — Mac &amp; Windows</summary>
+            <div class="terminal-content">
+              <p style="margin-bottom:14px;font-size:13px;color:var(--muted);">Replace <code>your-filename.html</code> with the actual name of your file.</p>
+              <strong style="font-size:13px;">🍎 Mac — Terminal</strong>
+              <p style="font-size:13px;margin:6px 0 4px;"><strong>How to open:</strong> Press <strong>Cmd + Space</strong>, type "Terminal", press Enter.</p>
+              <div class="terminal-mock">
+                <div class="terminal-titlebar">
+                  <span class="terminal-dot red"></span>
+                  <span class="terminal-dot yellow"></span>
+                  <span class="terminal-dot green"></span>
+                  <span class="terminal-label">Terminal — zsh</span>
+                </div>
+                <div class="terminal-body">
+                  <span class="t-prompt">yourname@MacBook ~ %</span> <span class="t-cmd">cd ~/Desktop</span><br>
+                  <span class="t-prompt">yourname@MacBook Desktop %</span> <span class="t-cmd">open your-filename.html</span><br>
+                  <span class="t-out"># Your default browser opens the file automatically</span>
+                </div>
+              </div>
+              <strong style="font-size:13px;display:block;margin-top:18px;">🪟 Windows — Command Prompt</strong>
+              <p style="font-size:13px;margin:6px 0 4px;"><strong>How to open:</strong> Press <strong>Win + R</strong>, type <code>cmd</code>, press Enter.</p>
+              <div class="terminal-mock">
+                <div class="terminal-titlebar">
+                  <span class="terminal-dot red"></span>
+                  <span class="terminal-dot yellow"></span>
+                  <span class="terminal-dot green"></span>
+                  <span class="terminal-label">Command Prompt</span>
+                </div>
+                <div class="terminal-body">
+                  <span class="t-prompt">C:\Users\YourName&gt;</span> <span class="t-cmd">cd Desktop</span><br>
+                  <span class="t-prompt">C:\Users\YourName\Desktop&gt;</span> <span class="t-cmd">start your-filename.html</span><br>
+                  <span class="t-out">:: Your default browser opens the file automatically</span>
+                </div>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <div class="lesson-nav">
+          <button class="btn-nav disabled" disabled>← Previous</button>
+          <span class="nav-lesson-label">Setup</span>
+          <button class="btn-nav" onclick="showLesson('glossary')">Next: Glossary →</button>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════════════════
+           GLOSSARY
+      ═══════════════════════════════════════════════════════════════ -->
+      <section class="lesson-section" id="sec-glossary">
+        <div class="lesson-header">
+          <div class="lesson-eyebrow">Setup &amp; Reference</div>
+          <h1 class="lesson-title">Glossary</h1>
+          <p class="lesson-desc">Plain-language definitions of AI and technical terms used throughout the course. Consult this anytime without losing your place.</p>
+        </div>
+
+        <div class="content-card">
+          <div class="glossary-item">
+            <div class="glossary-term">Agentic AI</div>
+            <div class="glossary-def">AI tools capable of taking multi-step actions on your behalf — not just answering questions, but generating files, writing code, and iterating based on feedback. Claude, ChatGPT, and Gemini are examples used in this course.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">API (Application Programming Interface)</div>
+            <div class="glossary-def">A standardized way for software to communicate with other software. When an HTML tool plays a voice prompt, it's using the browser's Web Speech API. You don't need to use APIs directly — the AI handles that in the generated code.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">Context window</div>
+            <div class="glossary-def">The total amount of text an AI can "hold in mind" during a conversation — your messages, its responses, and any code you paste all count toward this limit. When it fills up, AI performance degrades. Think of it like a whiteboard with limited space.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">CSS (Cascading Style Sheets)</div>
+            <div class="glossary-def">The part of an HTML file that controls appearance — colors, fonts, layout, and animations. You won't write CSS directly; the AI generates it as part of your simulation tool.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">Hallucination</div>
+            <div class="glossary-def">When an AI confidently states something incorrect. Common with specific facts, dates, or citations; less common with code generation tasks where correctness is easier to verify.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">HTML (HyperText Markup Language)</div>
+            <div class="glossary-def">The language all websites are built with. An HTML file is a text file your browser knows how to display. No server, no app store, no installation needed — open the file and it works.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">Model</div>
+            <div class="glossary-def">The specific version of AI being used (e.g., Claude Sonnet, GPT-4o). Different models have different strengths, speeds, and context window sizes. Free tiers typically give access to capable but not the latest models.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">Prompt</div>
+            <div class="glossary-def">The instruction or question you type to an AI. The quality of the output depends heavily on the quality of your prompt — which is why this course teaches prompt templates.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">Single-file HTML</div>
+            <div class="glossary-def">An HTML document that contains all its own CSS (Cascading Style Sheets) and JavaScript, requiring no external files, internet connection, or server to run. Open the file — it works. This is the format all tools in this course use.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">State machine</div>
+            <div class="glossary-def">A programming pattern where a system moves through defined steps in a fixed order. The AED (Automated External Defibrillator) simulator uses one: Power On → Attach Pads → Analyze → Shock → CPR.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">Temperature</div>
+            <div class="glossary-def">An AI setting controlling how creative vs. precise the responses are. Low temperature = consistent output. High = more varied. Most agentic AI tools set a reasonable default — you don't need to adjust this.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">Token</div>
+            <div class="glossary-def">The basic unit AI models process — roughly ¾ of a word. Context windows are measured in tokens (e.g., 200,000 tokens ≈ ~150,000 words). Pasting a large HTML file into a chat consumes many tokens.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">Vibe coding</div>
+            <div class="glossary-def">Describing what you want in natural language and letting AI write the code, without writing code yourself. You are the domain expert; the AI handles the syntax.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">Web Speech API</div>
+            <div class="glossary-def">A browser-native feature (API) that converts text to spoken audio. Used in the AED simulator for voice prompts — no external library needed, no internet required after the file is opened.</div>
+          </div>
+        </div>
+
+        <div class="lesson-nav">
+          <button class="btn-nav" onclick="showLesson('getting-started')">← Getting Started</button>
+          <span class="nav-lesson-label">Glossary</span>
+          <button class="btn-nav" onclick="showLesson('lesson-1')">Next: Lesson 1 →</button>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════════════════
+           LESSON 1
+      ═══════════════════════════════════════════════════════════════ -->
+      <section class="lesson-section" id="sec-lesson-1">
+        <div class="lesson-header">
+          <div class="lesson-eyebrow">Lesson 1</div>
+          <h1 class="lesson-title">What Is Just in Time Fidelity?</h1>
+          <p class="lesson-desc"><em>Your job is to know simulation. The AI's job is to know code.</em></p>
+          <span class="time-badge">~10 min</span>
+        </div>
+
+        <div class="fac-tips-block" data-tips="lesson-1">
+          <div class="fac-tips-label">Facilitator Tips — Lesson 1</div>
+          <p><strong>Timing:</strong> ~10 minutes for a group walkthrough, or 5 minutes solo.</p>
+          <p><strong>Discussion prompt:</strong> "What's a scenario where a quick custom tool would have saved you time?" Capture 2–3 ideas on a whiteboard — you'll reference them during the build activity.</p>
+          <p><strong>Framing:</strong> "You've been building just-in-time solutions your whole career — a quick moulage, a printed checklist, a prop from the supply closet. This is the same instinct, supercharged."</p>
+          <p><strong>Key point:</strong> Learners don't need to understand code. They need to understand simulation. That's why they're in the room.</p>
+        </div>
+
+        <div class="content-card card-blue">
+          <h3>Learning Objectives</h3>
+          <ul class="objectives">
+            <li>Define "Just in Time Fidelity" in your own words</li>
+            <li>List 3 things an HTML simulation tool can do</li>
+            <li>Understand why single-file HTML resources work well for AI vibe-coding</li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3>The Core Idea</h3>
+          <p>High-fidelity simulation tools — mannequins, moulage, task trainers — are expensive and require lead time. <strong>Just in Time Fidelity</strong> is the practice of creating purpose-built, scenario-specific tools quickly and cheaply, exactly when they're needed.</p>
+          <p>Agentic AI tools can now generate working HTML web apps in seconds. A browser is all learners need to run them. This unlocks a new category of simulation support: lightweight, interactive, instantly deployable digital tools.</p>
+          <p>This isn't a replacement for high-fidelity simulation — it's a complement. A quick custom tool built for <em>your</em> scenario, for <em>your</em> learners, in the time it takes to write a paragraph.</p>
+        </div>
+
+        <div class="content-card">
+          <h3>Why This Matters for Simulation Education</h3>
+          <ul>
+            <li><strong>Time:</strong> A tool that would take a developer days to build can be generated in hours by a non-technical educator.</li>
+            <li><strong>Cost:</strong> Free AI tools + a browser = zero marginal cost per tool.</li>
+            <li><strong>Specificity:</strong> Purpose-built for your scenario, your learners, your objectives.</li>
+            <li><strong>Iteration:</strong> Didn't get it right? Ask AI to change it. Get the full updated file. Test again.</li>
+          </ul>
+          <div class="callout" style="margin-top:14px; border-left: 4px solid var(--amber); background: var(--amber-light); margin-bottom:0;">
+            <span class="callout-icon">⚠️</span>
+            <div><strong>Caution — Check your institution's IT policies</strong> before deploying AI-generated tools on clinical networks, shared devices, or in patient-facing environments. Most institutions have policies around custom software and web-based tools — a quick conversation with your IT or education team before the workshop can save headaches later.</div>
+          </div>
+        </div>
+
+        <div class="content-card">
+          <h3>What HTML Is — In Plain Language</h3>
+          <p>HTML (HyperText Markup Language) is the language all websites are built with. An HTML file is just a text file that your browser knows how to display. No server, no app store, no installation. <strong>You open the file — it works.</strong></p>
+          <p>Because everything lives in a single file with no external dependencies, agentic AI can generate the entire tool in one response and hand it to you ready to use. That's what makes this approach so fast.</p>
+          <p>You will <em>not</em> be writing HTML in this course. You will be <em>describing</em> what you want to an AI, and the AI will write it for you. <strong>Your job is to know simulation. The AI's job is to know code.</strong></p>
+        </div>
+
+        <div class="content-card">
+          <h3>What HTML Simulation Tools Can Do</h3>
+          <ul>
+            <li>Step-by-step procedural coaching (like the AED simulator in Lesson 2)</li>
+            <li>Interactive checklists and decision trees</li>
+            <li>Timer-based scenarios with alerts</li>
+            <li>Patient assessment screens with vital signs</li>
+            <li>Medication dosage calculators</li>
+            <li>Visual anatomy or equipment diagrams with clickable labels</li>
+            <li>Team role assignment wheels and Crisis Resource Management (CRM) role cards</li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3 class="card-title">Why HTML?</h3>
+          <p style="margin-bottom:12px;">Other formats seem like obvious options — but each has a catch:</p>
+          <ul style="margin:0 0 12px 18px;line-height:1.8;">
+            <li><strong>Native apps</strong> (iOS/Android) — require App Store approval, developer accounts, and ongoing updates</li>
+            <li><strong>Web frameworks</strong> (React, etc.) — need a server, build tools, and ongoing maintenance</li>
+            <li><strong>PowerPoint</strong> — no real-time timers, no voice prompts, no dynamic branching</li>
+          </ul>
+          <p style="margin-bottom:12px;">HTML has a different profile:</p>
+          <ul style="margin:0 0 12px 18px;line-height:1.8;">
+            <li>Opens in any browser — no installation required</li>
+            <li>AI generates the entire file in one response</li>
+            <li>Works offline after the first open</li>
+            <li>Free to share — email it, post it, put it on a USB drive</li>
+            <li>Instantly modifiable — paste back into AI, ask for changes, save again</li>
+          </ul>
+          <p>HTML is the lowest-friction path from "I have an idea" to "this is running on someone's screen."</p>
+        </div>
+
+        <div class="content-card card-blue">
+          <h3 class="card-title">Your Turn — Capture Your Scenario</h3>
+          <p style="margin-bottom:14px;">Before you move on, pick one scenario from your program. It doesn't need to be perfect.</p>
+          <div style="border-left:3px solid var(--blue);padding-left:14px;margin-bottom:16px;">
+            <p style="margin-bottom:8px;line-height:1.8;">1. <strong>Who are the learners?</strong> <em>(nursing students, paramedics, residents…)</em></p>
+            <p style="margin-bottom:8px;line-height:1.8;">2. <strong>What do they need to practice?</strong></p>
+            <p style="line-height:1.8;">3. <strong>What does "done well" look like for them?</strong></p>
+          </div>
+          <p style="font-size:13px;color:var(--muted);">Write it down or voice-memo it. You'll use it in Lesson 3 and build it in Lesson 4.</p>
+        </div>
+
+        <div class="lesson-nav">
+          <button class="btn-nav" onclick="showLesson('glossary')">← Glossary</button>
+          <span class="nav-lesson-label">Lesson 1 of 8</span>
+          <button class="btn-nav" onclick="showLesson('lesson-2')">Next: Lesson 2 →</button>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════════════════
+           LESSON 2
+      ═══════════════════════════════════════════════════════════════ -->
+      <section class="lesson-section" id="sec-lesson-2">
+        <div class="lesson-header">
+          <div class="lesson-eyebrow">Lesson 2</div>
+          <h1 class="lesson-title">See It in Action: The AED Simulator</h1>
+          <p class="lesson-desc">Make the concept concrete before asking learners to build anything.</p>
+          <span class="time-badge">~10 min</span>
+        </div>
+
+        <div class="fac-tips-block" data-tips="lesson-2">
+          <div class="fac-tips-label">Facilitator Tips — Lesson 2</div>
+          <p><strong>Live demo:</strong> Project the AED simulator on screen and walk through it yourself first. The shock animation lands well with groups.</p>
+          <p><strong>What to highlight:</strong> The voice prompt (surprising to most), the offline capability, and the fact that it came from a single plain-English prompt. Say the prompt aloud before showing it in text.</p>
+          <p><strong>Common questions:</strong> "Can it run on an iPad?" — Yes. "Does it store data?" — No. "How long did it actually take?" — 30–90 seconds for the first version.</p>
+          <p><strong>Timing:</strong> ~10 minutes. Close with: "What would you add or change?" to preview the build activity.</p>
+        </div>
+
+        <div class="content-card card-blue">
+          <h3>Learning Objectives</h3>
+          <ul class="objectives">
+            <li>Describe what the AED simulator does and how it was made</li>
+            <li>Recognize that a prompt starts the process — and that iteration is what gets you the result you want</li>
+            <li>Identify 2–3 features you'd want in your own tool</li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3>Before You Build, See What's Possible</h3>
+          <p>The AED simulator in this folder was generated with a single AI prompt. It includes voice prompts, animations, a CPR metronome, and a countdown timer — all in one file, no internet required after opening.</p>
+          <p>Open <code>aed-app.html</code> from the same folder in your browser. No login, no installation — just double-click the file, or drag it into Chrome, Edge, or Firefox.</p>
+        </div>
+
+        <div class="content-card">
+          <h3>Demo Walkthrough</h3>
+          <ul class="activity-steps">
+            <li class="activity-step">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <strong>Open the file</strong>
+                <p>Double-click <code>aed-app.html</code> or drag it into a browser. No internet needed, no login — just a file.</p>
+              </div>
+            </li>
+            <li class="activity-step">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <strong>Press POWER ON</strong>
+                <p>Notice the voice prompt reads the instruction aloud using your browser's built-in speech. No library, no plugin.</p>
+              </div>
+            </li>
+            <li class="activity-step">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <strong>Walk through each step</strong>
+                <p>Power On → Attach Pads → Analyzing Rhythm → Shock Advised. Each step advances only when you press the button.</p>
+              </div>
+            </li>
+            <li class="activity-step">
+              <div class="step-num">4</div>
+              <div class="step-content">
+                <strong>Press DELIVER SHOCK</strong>
+                <p>Watch the shock flash animation — generated by the AI using CSS keyframes, no video, no external assets.</p>
+              </div>
+            </li>
+            <li class="activity-step">
+              <div class="step-num">5</div>
+              <div class="step-content">
+                <strong>Reach the CPR screen</strong>
+                <p>Metronome at 110 bpm (AHA guidelines) with a 2-minute countdown timer. Both run in the browser with no server.</p>
+              </div>
+            </li>
+            <li class="activity-step">
+              <div class="step-num">6</div>
+              <div class="step-content">
+                <strong>Try the mute toggle</strong>
+                <p>Voice and audio can be silenced without stopping the simulation — useful for group environments.</p>
+              </div>
+            </li>
+            <li class="activity-step">
+              <div class="step-num">7</div>
+              <div class="step-content">
+                <strong>Press START OVER</strong>
+                <p>The entire simulator resets. No page reload needed.</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3>The Prompt That Built It</h3>
+          <p>This is the type of prompt that starts a tool like this. The AED simulator in this course was refined through several rounds of iteration — but a prompt like this is how it began.</p>
+          <p style="background:var(--blue-light);border-left:3px solid var(--blue);padding:10px 14px;border-radius:0 6px 6px 0;margin-bottom:14px;font-size:14px;"><strong>Before you see it —</strong> how would <em>you</em> describe the AED simulator to an AI? Take 60 seconds and think: what would you include? What might you leave out?</p>
+          <details class="editor-guide">
+            <summary>See the prompt that started it</summary>
+            <pre class="code-block">Create a single-file HTML AED simulator for medical simulation training.
+Include: step-by-step coaching (Power On → Attach Pads → Analyze → Shock → CPR),
+voice prompts using the Web Speech API, a shock animation, and a CPR metronome
+at 110 bpm with a 2-minute countdown timer. No external libraries. Dark theme.</pre>
+          </details>
+        </div>
+
+        <div class="content-card">
+          <h3>What to Notice</h3>
+          <ul>
+            <li><strong>Voice:</strong> No recording, no audio files — the browser speaks the text natively.</li>
+            <li><strong>Animation:</strong> The shock flash is pure CSS — instant, no video load.</li>
+            <li><strong>Timer:</strong> JavaScript built into the file counts down from 2 minutes.</li>
+            <li><strong>Single file:</strong> Everything in one <code>.html</code> file. No dependencies.</li>
+            <li><strong>Offline:</strong> Once opened, it works with no internet connection.</li>
+            <li><strong>Speed:</strong> This was built in minutes, not days.</li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3 class="card-title">The Build Loop</h3>
+          <p style="margin-bottom:14px;">This is the cycle you'll run every time you create or improve a tool. You'll use it for real in Lesson 4.</p>
+          <div class="build-loop">
+            <div class="loop-step">
+              <div class="loop-num">1</div>
+              <div class="loop-label">Prompt</div>
+              <div class="loop-desc">Describe what you want to AI</div>
+            </div>
+            <div class="loop-arrow">→</div>
+            <div class="loop-step">
+              <div class="loop-num">2</div>
+              <div class="loop-label">Paste &amp; Save</div>
+              <div class="loop-desc">Copy output to a .html file</div>
+            </div>
+            <div class="loop-arrow">→</div>
+            <div class="loop-step">
+              <div class="loop-num">3</div>
+              <div class="loop-label">Open</div>
+              <div class="loop-desc">Test it in your browser</div>
+            </div>
+            <div class="loop-arrow">→</div>
+            <div class="loop-step">
+              <div class="loop-num">4</div>
+              <div class="loop-label">Iterate</div>
+              <div class="loop-desc">Refine with follow-up prompts</div>
+            </div>
+          </div>
+          <p style="font-size:13px;color:var(--muted);">Most tools take 3–5 loops to get right. That's expected — not a sign something went wrong.</p>
+        </div>
+
+        <div class="lesson-nav">
+          <button class="btn-nav" onclick="showLesson('lesson-1')">← Lesson 1</button>
+          <span class="nav-lesson-label">Lesson 2 of 8</span>
+          <button class="btn-nav" onclick="showLesson('lesson-3')">Next: Lesson 3 →</button>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════════════════
+           LESSON 3
+      ═══════════════════════════════════════════════════════════════ -->
+      <section class="lesson-section" id="sec-lesson-3">
+        <div class="lesson-header">
+          <div class="lesson-eyebrow">Lesson 3</div>
+          <h1 class="lesson-title">How to Talk to AI: The 5 Prompt Templates</h1>
+          <p class="lesson-desc">Teach the core skill: writing effective prompts and managing an AI session over time.</p>
+          <span class="time-badge">~15 min</span>
+        </div>
+
+        <div class="fac-tips-block" data-tips="lesson-3">
+          <div class="fac-tips-label">Facilitator Tips — Lesson 3</div>
+          <p><strong>Timing:</strong> ~15 minutes — 5 min walk through templates, 5 min pair practice, 5 min debrief.</p>
+          <p><strong>Pair practice:</strong> Have learners pair up and each try Template 1 with their own scenario. Goal: get the AI to produce something — not something perfect. Lower the stakes: "You'll have time to improve it in Lesson 4."</p>
+          <p><strong>Common struggles:</strong> Learners who are too vague ("make a medical simulator") get generic results. Coach them toward a specific scenario, specific learners, specific features. Specificity is the skill.</p>
+          <p><strong>Context window:</strong> Rarely causes problems in a 90-min live workshop. Mention briefly and point to the willness.dev article for depth. More important for home use.</p>
+        </div>
+
+        <div class="content-card card-blue">
+          <h3>Learning Objectives</h3>
+          <ul class="objectives">
+            <li>Match the right prompt template to each situation</li>
+            <li>Fill in Template 1 for your chosen scenario</li>
+            <li>Know what "one change at a time" means and why it matters</li>
+            <li>Understand what a context window is and how to work with it</li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3>Why Prompts Matter</h3>
+          <p><em>AI is powerful but literal.</em> The clearer your instructions, the better the output. You don't need to know how to code — but you do need to describe what you want clearly. These 5 templates cover almost every situation you'll encounter.</p>
+          <div class="callout">
+            <span class="callout-icon">📋</span>
+            <div><strong>Works with any agentic AI tool</strong> — Claude, ChatGPT, Gemini, or others. Open one now and follow along.</div>
+          </div>
+        </div>
+
+        <div class="prompt-card">
+          <div class="prompt-card-header">
+            <div class="prompt-number">1</div>
+            <span class="prompt-title">Start From Scratch</span>
+            <span class="prompt-when">Use when: starting a new tool</span>
+          </div>
+          <div class="prompt-body">
+            <div class="prompt-template">Create a single-file HTML simulation tool for medical training.
+
+What it does: [describe the scenario in plain language]
+Who will use it: [learner type, e.g. nursing students, paramedics]
+Key features I need:
+  - [feature 1]
+  - [feature 2]
+  - [feature 3]
+
+Keep it simple and easy to use. No external libraries.
+Make it work when opened directly in a browser.</div>
+            <div class="prompt-tip">Tip: More detail = better results. Describe the scenario like you're briefing a colleague who has never seen it before.</div>
+          </div>
+        </div>
+
+        <div class="prompt-card">
+          <div class="prompt-card-header">
+            <div class="prompt-number">2</div>
+            <span class="prompt-title">Make It Better</span>
+            <span class="prompt-when">Use when: the output is close but not quite right</span>
+          </div>
+          <div class="prompt-body">
+            <div class="prompt-template">This is good, but I'd like to make a few changes:
+  - [specific thing to change]
+  - [specific thing to add]
+  - [specific thing to remove]
+
+Please update the code and give me the full file again.</div>
+            <div class="prompt-tip">Tip: Always ask for "the full file again" — this gives you a complete, working file to copy/paste and save.</div>
+          </div>
+        </div>
+
+        <div class="prompt-card">
+          <div class="prompt-card-header">
+            <div class="prompt-number">3</div>
+            <span class="prompt-title">Add a Feature</span>
+            <span class="prompt-when">Use when: you want one specific new capability</span>
+          </div>
+          <div class="prompt-body">
+            <div class="prompt-template">Add [specific feature] to this HTML file.
+
+[Paste your current HTML code here]
+
+The feature should: [describe exactly what it should do].
+Please give me the complete updated file.</div>
+            <div class="prompt-tip">Tip: One feature at a time works better than listing many at once. You can always add more after.</div>
+          </div>
+        </div>
+
+        <div class="prompt-card">
+          <div class="prompt-card-header">
+            <div class="prompt-number">4</div>
+            <span class="prompt-title">Fix the Bug</span>
+            <span class="prompt-when">Use when: something isn't working</span>
+          </div>
+          <div class="prompt-body">
+            <div class="prompt-template">Something isn't working in my HTML file.
+
+What I expected to happen: [describe it]
+What actually happens: [describe it]
+
+[Paste your current HTML code here]
+
+Please find and fix the problem, then give me the full corrected file.</div>
+            <div class="prompt-tip">Tip: Describing the gap between "expected" and "actual" is the single most useful thing you can tell a debugging AI.</div>
+          </div>
+        </div>
+
+        <div class="prompt-card">
+          <div class="prompt-card-header">
+            <div class="prompt-number">5</div>
+            <span class="prompt-title">Explain This Code</span>
+            <span class="prompt-when">Use when: you're curious or want to learn</span>
+          </div>
+          <div class="prompt-body">
+            <div class="prompt-template">Explain this HTML file to me in plain language.
+I have no coding background.
+
+Focus on: [the part you're curious about, e.g. "how the timer works"]
+
+[Paste your HTML code here]</div>
+            <div class="prompt-tip">Tip: Understanding even a little of what the code does helps you write better prompts next time.</div>
+          </div>
+        </div>
+
+        <div class="content-card card-blue">
+          <h3 class="card-title">Your Turn — Draft Your First Prompt</h3>
+          <p style="margin-bottom:14px;">Take the scenario you identified in Lesson 1 and fill in Template 1 below. Then open your AI tool and send it. Don't aim for a finished tool — you're testing the template.</p>
+          <div class="template-editor-wrap">
+            <textarea class="template-editor" id="l3Template" rows="14">Build me a [TOOL TYPE] simulation for [LEARNER GROUP].
+
+Scenario: [DESCRIBE THE CLINICAL SCENARIO IN 1–2 SENTENCES]
+
+The learner should be able to: [LIST 2–3 SPECIFIC ACTIONS OR DECISIONS]
+
+Include: [ANY SPECIFIC FEATURES — timer, voice prompts, scoring, etc.]
+
+Keep it simple and self-contained as a single HTML file.</textarea>
+            <button class="btn-copy" onclick="copyPrompt('l3Template')">Copy</button>
+          </div>
+          <div style="margin-top:16px;padding:12px 14px;background:var(--bg);border-radius:6px;font-size:13px;">
+            <p style="font-weight:700;margin-bottom:8px;">After you send it, take 30 seconds:</p>
+            <ul style="margin:0 0 0 18px;line-height:1.9;">
+              <li>What came back from the AI? Skim it for 30 seconds.</li>
+              <li>Does it match what you described? What's one thing you'd change?</li>
+              <li>Save that thought — you'll refine it in Lesson 4.</li>
+            </ul>
+          </div>
+        </div>
+
+        <hr style="border:none;border-top:1px solid var(--border);margin:24px 0 8px;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:16px;">Going Deeper</p>
+
+        <div class="content-card">
+          <h3>Understanding the Context Window</h3>
+          <p>Every AI conversation has a memory limit. The <strong>context window</strong> is how much the AI can "hold in mind" at once — your full conversation history, the code you've pasted, and its own responses all count toward this limit.</p>
+          <p>As the context window fills, AI performance degrades. Think of it like a whiteboard: the more old notes covering it, the harder it is to focus on the current problem. Around 40% capacity, you may start to notice slower or less accurate responses.</p>
+
+          <hr>
+          <h3>The Quadratic Problem (Plain Language)</h3>
+          <p>It's not just that more conversation = more to read. Each new message has to "connect" with every previous message, so the work the AI does grows much faster than the conversation length itself.</p>
+
+          <hr>
+          <h3>A Clinical Analogy</h3>
+          <p>Think of it like a physician joining a patient handoff mid-shift. If they're carrying mental load from ten previous patients, their focus on the current case suffers. A clean handoff — fresh context — leads to sharper attention.</p>
+
+          <hr>
+          <h3>One Session Per Task</h3>
+          <p>Start a fresh AI conversation for each new tool you're building. Don't chain a chest tube checklist session into a medication calculator session in the same chat.</p>
+          <p><strong>When to start fresh:</strong> If responses feel "off," the AI seems confused about what you're building, or you're starting a completely different scenario — open a new chat.</p>
+
+          <div class="callout">
+            <span class="callout-icon">🔗</span>
+            <div>For a visual explanation with interactive simulations, see <a href="https://willness.dev/blog/one-session-per-task" target="_blank" rel="noopener">Why You Need To Clear Your Coding Agent's Context Window</a> by Will Ness.</div>
+          </div>
+        </div>
+
+        <div class="lesson-nav">
+          <button class="btn-nav" onclick="showLesson('lesson-2')">← Lesson 2</button>
+          <span class="nav-lesson-label">Lesson 3 of 8</span>
+          <button class="btn-nav" onclick="showLesson('lesson-4')">Next: Lesson 4 →</button>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════════════════
+           LESSON 4
+      ═══════════════════════════════════════════════════════════════ -->
+      <section class="lesson-section" id="sec-lesson-4">
+        <div class="lesson-header">
+          <div class="lesson-eyebrow">Lesson 4</div>
+          <h1 class="lesson-title">Build Your Own Tool</h1>
+          <p class="lesson-desc">Apply the prompt templates to create a real, working HTML simulation tool.</p>
+          <span class="time-badge">~30 min</span>
+        </div>
+
+        <div class="fac-tips-block" data-tips="lesson-4">
+          <div class="fac-tips-label">Facilitator Tips — Lesson 4</div>
+          <p><strong>Timing:</strong> 30 minutes in a live workshop (Steps 1–5 in sequence). Give a 5-minute warning at the 25-minute mark.</p>
+          <p><strong>Circulate:</strong> Move table to table. Look for learners stuck on the save step — most common friction point. Coach them through the TextEdit/Notepad gotchas.</p>
+          <p><strong>If their tool doesn't work:</strong> Don't fix it for them. Walk them through Template 4 instead — the debugging process is itself a learning objective.</p>
+          <p><strong>Watch for:</strong> Learners who paste AI output without reading any of it. A 30-second skim helps them describe what's wrong if it doesn't work.</p>
+        </div>
+
+        <div class="content-card card-blue">
+          <h3>Learning Objectives</h3>
+          <ul class="objectives">
+            <li>Generate a working HTML simulation tool using an agentic AI tool</li>
+            <li>Save it correctly and open it in a browser</li>
+            <li>Complete at least 2 rounds of iteration</li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3>Already comfortable with the tools? Start here.</h3>
+          <ul class="checklist">
+            <li><span class="check">✓</span> AI account open and ready (Claude, ChatGPT, or Gemini)</li>
+            <li><span class="check">✓</span> Code editor installed (Cursor, VS Code, or a plain text editor)</li>
+            <li><span class="check">✓</span> You've opened <code>aed-app.html</code> at least once so you know what "working" looks like</li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3>Plan Before You Prompt</h3>
+          <p>Spend 2 minutes filling this in before opening the AI. Learners who plan first get better results on their first prompt.</p>
+          <div class="planning-form">
+            <div class="plan-row">
+              <span class="plan-label">My scenario:</span>
+              <span class="plan-line"></span>
+            </div>
+            <div class="plan-row">
+              <span class="plan-label">Who will use it:</span>
+              <span class="plan-line"></span>
+            </div>
+            <div class="plan-row">
+              <span class="plan-label">What it should do:</span>
+              <span class="plan-line"></span>
+            </div>
+            <div class="plan-row">
+              <span class="plan-label">Key features I want:</span>
+              <div class="plan-features">
+                <span class="plan-feature-slot"></span>
+                <span class="plan-feature-slot"></span>
+                <span class="plan-feature-slot"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-card">
+          <h3>Step-by-Step Build Activity</h3>
+          <div style="background:var(--blue-light);border-left:3px solid var(--blue);padding:10px 14px;border-radius:0 6px 6px 0;margin-bottom:16px;font-size:13px;">
+            You're about to run <strong>The Build Loop</strong> for real (introduced in Lesson 2): <strong>Prompt → Paste &amp; Save → Open → Iterate.</strong>
+          </div>
+          <ul class="activity-steps">
+            <li class="activity-step">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <strong>Pick a scenario (3 min)</strong>
+                <p>Choose a clinical scenario from your own program — or pick one below. It should be something you'd actually use.</p>
+                <div class="idea-grid" style="margin-top:10px;">
+                  <div class="idea-chip"><span class="chip-icon">🫁</span>Chest tube insertion checklist</div>
+                  <div class="idea-chip"><span class="chip-icon">💊</span>Medication dosage calculator</div>
+                  <div class="idea-chip"><span class="chip-icon">🩺</span>ABCDE assessment guide</div>
+                  <div class="idea-chip"><span class="chip-icon">🩸</span>Blood transfusion safety checklist</div>
+                  <div class="idea-chip"><span class="chip-icon">⏱</span>Rapid sequence intubation timer</div>
+                  <div class="idea-chip"><span class="chip-icon">🧠</span>Stroke scale (FAST) guide</div>
+                  <div class="idea-chip"><span class="chip-icon">👶</span>Neonatal resuscitation flow</div>
+                  <div class="idea-chip"><span class="chip-icon">🔥</span>Burn surface area estimator</div>
+                  <div class="idea-chip"><span class="chip-icon">🫀</span>Cardiac arrest algorithm</div>
+                  <div class="idea-chip"><span class="chip-icon">💉</span>IV insertion technique guide</div>
+                  <div class="idea-chip"><span class="chip-icon">🔧</span>Equipment setup checklist</div>
+                  <div class="idea-chip"><span class="chip-icon">📋</span>Handoff / SBAR tool</div>
+                </div>
+              </div>
+            </li>
+            <li class="activity-step">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <strong>Write your first prompt (5 min)</strong>
+                <p>Use this template — fill in the blanks from your planning form above. Be specific about what you want the tool to do and who will use it.</p>
+                <div class="template-editor-wrap">
+                  <textarea class="template-editor" id="l4Template" rows="14">Create a single-file HTML [tool type] for [who will use it].
+
+It should help with: [what the tool does]
+
+Include:
+  - [feature 1]
+  - [feature 2]
+  - [feature 3]
+
+Requirements: works offline, opens in any browser, no external libraries.</textarea>
+                  <button class="btn-copy" onclick="copyPrompt('l4Template')">Copy</button>
+                </div>
+                <p style="font-size:13px;color:var(--muted);margin-top:6px;">This is Template 1 from Lesson 3.</p>
+              </div>
+            </li>
+            <li class="activity-step">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <strong>Save the file (5 min)</strong>
+                <p>Copy everything the AI gives you. Open your code editor → New File → Paste → Save As <code>my-tool.html</code>.</p>
+                <p><strong>Cursor / VS Code:</strong> File → New File → Paste → Ctrl/Cmd+S → name it <code>my-tool.html</code>.</p>
+                <p><strong>Mac TextEdit:</strong> Format → Make Plain Text, then save with <code>.html</code> extension.</p>
+                <p><strong>Windows Notepad:</strong> Set "Save as type" to All Files. Name it <code>"my-tool.html"</code> with quotes.</p>
+              </div>
+            </li>
+            <li class="activity-step">
+              <div class="step-num">4</div>
+              <div class="step-content">
+                <strong>Open it in a browser (2 min)</strong>
+                <p>Double-click the file, or drag it into your web browser. If it doesn't work, jump to Lesson 8.</p>
+                <p style="font-size:13px;color:var(--muted);margin-top:4px;">For tools with voice features, Chrome or Edge work best. Safari may require an extra tap before audio plays.</p>
+              </div>
+            </li>
+            <li class="activity-step">
+              <div class="step-num">5</div>
+              <div class="step-content">
+                <strong>Iterate (15 min)</strong>
+                <p>Use Templates 2 or 3 to improve your tool. Add a feature, change the design, fix something. Aim for at least 2 rounds.</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3>Common First-Round Issues</h3>
+          <ul>
+            <li><strong>File opens blank:</strong> Check that you saved as <code>.html</code> not <code>.html.txt</code>. See Lesson 8.</li>
+            <li><strong>AI gave a snippet, not a full file:</strong> Ask "Can you give me the complete HTML file starting with &lt;!DOCTYPE html&gt;?"</li>
+            <li><strong>AI stopped halfway:</strong> Type "Continue" or "Please complete the rest of the file."</li>
+          </ul>
+        </div>
+
+        <div class="lesson-nav">
+          <button class="btn-nav" onclick="showLesson('lesson-3')">← Lesson 3</button>
+          <span class="nav-lesson-label">Lesson 4 of 8</span>
+          <button class="btn-nav" onclick="showLesson('lesson-5')">Next: Lesson 5 →</button>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════════════════
+           LESSON 5
+      ═══════════════════════════════════════════════════════════════ -->
+      <section class="lesson-section" id="sec-lesson-5">
+        <div class="lesson-header">
+          <div class="lesson-eyebrow">Lesson 5</div>
+          <h1 class="lesson-title">Share &amp; Reflect</h1>
+          <p class="lesson-desc">Consolidate learning through sharing, comparison, and reflection.</p>
+          <span class="time-badge">~15 min</span>
+        </div>
+
+        <div class="fac-tips-block" data-tips="lesson-5">
+          <div class="fac-tips-label">Facilitator Tips — Lesson 5</div>
+          <p><strong>Running the share-out (15 min):</strong> Ask for 3–4 volunteers to briefly demo their tool (2–3 min each). Prompt the group: "What did you notice about theirs that you want to try?"</p>
+          <p><strong>If demos stall:</strong> Ask "What was the hardest part of saving the file?" — reliably generates useful discussion. Other prompts that work well:</p>
+          <ul>
+            <li>"What was the most difficult part?"</li>
+            <li>"Were you able to work with your AI tool to explain something you didn't understand at first, or work through a problem you couldn't have solved alone?"</li>
+            <li>"What would you show your team back home first?"</li>
+          </ul>
+          <p><strong>Handling dominant voices:</strong> If one learner is monopolizing, redirect: "That's great — can we hear from someone who chose a different scenario?"</p>
+          <p><strong>Timing:</strong> Don't skip this even if the group is behind. 10 minutes of sharing is worth more than 10 more minutes of solo build time.</p>
+        </div>
+
+        <div class="content-card card-blue">
+          <h3>Learning Objectives</h3>
+          <ul class="objectives">
+            <li>Articulate one thing that surprised you about the build process</li>
+            <li>Identify one feature you'd add with more time</li>
+            <li>Name one scenario where you'd use a tool like this before your next simulation</li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3>Why Sharing Matters</h3>
+          <p>Seeing what others built expands your sense of what's possible. A chest tube checklist someone built in 10 minutes might spark an idea for your own program you hadn't considered.</p>
+          <p>The debrief is also where learning consolidates — articulating what surprised you or what you'd change is how tacit experience becomes transferable knowledge.</p>
+        </div>
+
+        <div class="content-card">
+          <h3>If You're in a Group</h3>
+          <p>Share your tool with a partner or the full group. Walk through what you built, what worked, and what you'd change. Brief demos work well — show the tool running in the browser.</p>
+        </div>
+
+        <div class="content-card">
+          <h3>If You're Working Solo</h3>
+          <p>Take 5 minutes to reflect on the questions below. Write notes or voice-memo your answers — the act of articulating them matters even without an audience.</p>
+        </div>
+
+        <div class="content-card">
+          <h3>Debrief Questions</h3>
+          <ul class="debrief-list">
+            <li>What scenario did you choose, and why that one?</li>
+            <li>What was harder or easier than you expected?</li>
+            <li>What would you change about your tool if you had more time?</li>
+            <li>How could you see yourself using something like this before your next simulation session?</li>
+          </ul>
+        </div>
+
+        <div class="lesson-nav">
+          <button class="btn-nav" onclick="showLesson('lesson-4')">← Lesson 4</button>
+          <span class="nav-lesson-label">Lesson 5 of 8</span>
+          <button class="btn-nav" onclick="showLesson('lesson-6')">Next: Lesson 6 →</button>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════════════════
+           LESSON 8 — TROUBLESHOOTING
+      ═══════════════════════════════════════════════════════════════ -->
+      <section class="lesson-section" id="sec-lesson-8">
+        <div class="lesson-header">
+          <div class="lesson-eyebrow">Lesson 8</div>
+          <h1 class="lesson-title">Troubleshooting Guide</h1>
+          <p class="lesson-desc">Reference resource for when things go wrong. Jump here anytime.</p>
+        </div>
+
+        <div class="fac-tips-block" data-tips="lesson-8">
+          <div class="fac-tips-label">Facilitator Tips — Lesson 8</div>
+          <p><strong>Most common issues in live workshops (in order):</strong></p>
+          <ol style="padding-left:18px;font-size:13px;">
+            <li>File saved as <code>.html.txt</code> — most common on Mac TextEdit and Windows Notepad
+              <br><em>Mac:</em> Finder → Settings → Advanced → check "Show all filename extensions" so learners can see what's actually saved.
+              <br><em>Windows:</em> File Explorer → View → Show → File name extensions.
+            </li>
+            <li>AI gave partial code, not a full file — fix with the DOCTYPE prompt above</li>
+            <li>Voice not working in Safari — Safari is less reliable for tools that use voice or audio. If a learner is on Safari, ask them to switch to Chrome or Edge before troubleshooting further.</li>
+          </ol>
+          <p><strong>How to triage quickly:</strong> Ask "Can you open the file in Chrome?" If yes, the file is fine and the issue is browser-specific. If no, the save step went wrong.</p>
+          <p><strong>Group troubleshoot:</strong> Walk through the bug description approach projected on screen — it's valuable for everyone to watch the debugging process live.</p>
+        </div>
+
+        <div class="content-card card-blue">
+          <h3>Learning Objectives</h3>
+          <ul class="objectives">
+            <li>Diagnose the most common HTML generation problems</li>
+            <li>Apply the correct fix without starting over</li>
+            <li>Know when to ask AI for help vs. try a different approach</li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3>How to Use This Guide</h3>
+          <p>Find your symptom below. If none match, describe what you expected vs. what you see, paste your code, and ask the AI to find the problem.</p>
+        </div>
+
+        <div class="trouble-item">
+          <div class="trouble-problem">❌ The file won't open / browser shows an error</div>
+          <div class="trouble-fix">Make sure you saved with a <code>.html</code> extension — not <code>.html.txt</code>. <strong>Mac TextEdit:</strong> Format → Make Plain Text before saving. <strong>Windows Notepad:</strong> Set "Save as type" to All Files and type <code>myfile.html</code> — or use quotes: <code>"myfile.html"</code>.</div>
+        </div>
+        <div class="trouble-item">
+          <div class="trouble-problem">❌ The AI gave me only a code block, not a full file</div>
+          <div class="trouble-fix">Ask: "Can you give me the complete, self-contained HTML file starting with &lt;!DOCTYPE html&gt; so I can save it directly?" The AI will provide the full file.</div>
+        </div>
+        <div class="trouble-item">
+          <div class="trouble-problem">❌ Voice prompts aren't working</div>
+          <div class="trouble-fix">Check that your browser isn't blocking audio (look for a 🔇 icon in the address bar). Try Chrome or Edge — they have the most complete Web Speech API support. Safari works on Mac but may need a user gesture first (click anything on the page).</div>
+        </div>
+        <div class="trouble-item">
+          <div class="trouble-problem">❌ The tool looks broken or the layout is wrong</div>
+          <div class="trouble-fix">Describe exactly what looks wrong (e.g., "buttons are overlapping," "text is too small on mobile"). Paste your full code and ask: "Fix the layout issue where [describe problem]. Give me the complete updated file."</div>
+        </div>
+        <div class="trouble-item">
+          <div class="trouble-problem">❌ I edited the code manually and now nothing works</div>
+          <div class="trouble-fix">Paste your broken code and ask: "I edited this HTML manually and it broke. Please fix it and return the complete working file." If it's beyond repair, ask: "Rewrite this so it does [describe what it should do]."</div>
+        </div>
+        <div class="trouble-item">
+          <div class="trouble-problem">❌ The AI stopped halfway through the code</div>
+          <div class="trouble-fix">Type "Continue" or "Please complete the rest of the file." Copy both halves and combine them into one file before saving.</div>
+        </div>
+
+        <div class="content-card" style="margin-top:20px;">
+          <h3>General Troubleshooting Mindset</h3>
+          <ol style="padding-left:18px;font-size:14px;display:flex;flex-direction:column;gap:8px;">
+            <li><strong>Pause before you type.</strong> Most problems come from unclear communication, not from the AI being broken.</li>
+            <li><strong>Describe the gap.</strong> What did you expect? What did you actually get? That gap is the bug.</li>
+            <li><strong>Paste the code.</strong> Never describe a code problem without including the code. The AI can't help without it.</li>
+            <li><strong>One fix at a time.</strong> Ask for one specific change. Stacking multiple requests in one message leads to partial fixes.</li>
+            <li><strong>If stuck, reset the conversation.</strong> Open a new chat, paste your code fresh, and describe the single thing you want fixed.</li>
+          </ol>
+        </div>
+
+        <div class="lesson-nav">
+          <button class="btn-nav" onclick="showLesson('lesson-7')">← Lesson 7</button>
+          <span class="nav-lesson-label">Lesson 8 of 8</span>
+          <button class="btn-nav disabled" disabled>Course Complete</button>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════════════════
+           LESSON 6 — RESOURCES (was Lesson 7)
+      ═══════════════════════════════════════════════════════════════ -->
+      <section class="lesson-section" id="sec-lesson-6">
+        <div class="lesson-header">
+          <div class="lesson-eyebrow">Lesson 6</div>
+          <h1 class="lesson-title">Resources &amp; Next Steps</h1>
+          <p class="lesson-desc">Close with confidence, take-home tools, and a path to sharing with others.</p>
+          <span class="time-badge">~10 min</span>
+        </div>
+
+        <div class="fac-tips-block" data-tips="lesson-6">
+          <div class="fac-tips-label">Facilitator Tips — Lesson 6</div>
+          <p><strong>Closing the live session:</strong> Return to the question from Lesson 1 — "What's a scenario where a quick tool would have saved you time?" — and close the loop: "You can now build that tool."</p>
+          <p><strong>Next steps for the group:</strong> Encourage learners to build one real tool for their program within the next week, while the prompts are fresh.</p>
+          <p><strong>Timing:</strong> ~10 minutes. Don't rush — leave time for the debrief questions from Lesson 5 if you didn't get there.</p>
+        </div>
+
+        <div class="content-card card-blue">
+          <h3>Learning Objectives</h3>
+          <ul class="objectives">
+            <li>Know where to go to keep building</li>
+            <li>Have a take-home starter prompt ready to use</li>
+            <li>Know how to share this course with a colleague</li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3>Free AI Tools to Try</h3>
+          <div class="resource-grid">
+            <div class="resource-card">
+              <div class="resource-icon">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="28" height="28" rx="6" fill="#C95B21"/>
+                  <path d="M14 5.5L22 20.5H6L14 5.5Z" fill="white"/>
+                  <path d="M14 12.5L18 20.5H10L14 12.5Z" fill="#C95B21"/>
+                </svg>
+              </div>
+              <div class="resource-name"><a href="https://claude.ai" target="_blank">Claude</a></div>
+              <div class="resource-desc">Excellent for generating clean, complete HTML in one shot. Free tier available.</div>
+            </div>
+            <div class="resource-card">
+              <div class="resource-icon">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="28" height="28" rx="6" fill="#10A37F"/>
+                  <circle cx="14" cy="14" r="6.5" stroke="white" stroke-width="1.5" fill="none"/>
+                  <path d="M11 14C11 11.8 12.8 10 15 10" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+                  <path d="M17 14C17 16.2 15.2 18 13 18" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+                </svg>
+              </div>
+              <div class="resource-name"><a href="https://chat.openai.com" target="_blank">ChatGPT</a></div>
+              <div class="resource-desc">Widely used, good for HTML generation. Free tier available.</div>
+            </div>
+            <div class="resource-card">
+              <div class="resource-icon">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="28" height="28" rx="6" fill="#4285F4"/>
+                  <path d="M14 5L15.7 12.3L23 14L15.7 15.7L14 23L12.3 15.7L5 14L12.3 12.3Z" fill="white"/>
+                </svg>
+              </div>
+              <div class="resource-name"><a href="https://gemini.google.com" target="_blank">Gemini</a></div>
+              <div class="resource-desc">Google's AI assistant. Integrates with Google Workspace. Free to use.</div>
+            </div>
+            <div class="resource-card">
+              <div class="resource-icon">🌐</div>
+              <div class="resource-name">Any browser</div>
+              <div class="resource-desc">Chrome, Edge, Firefox, or Safari. All can open HTML files directly — no server needed.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-card">
+          <h3>Your Take-Home Starter Prompt</h3>
+          <p>Paste this into any agentic AI tool to build your first simulation tool after the workshop:</p>
+          <pre class="code-block">Create a single-file HTML simulation tool for medical training.
+
+Scenario: [describe your scenario in 1–2 sentences]
+
+The tool should help: [who will use it and what they need to do]
+
+Include:
+  - [feature 1]
+  - [feature 2]
+  - [feature 3]
+
+Requirements: works offline, opens in any browser, no external libraries,
+clean and professional design, mobile-friendly.</pre>
+        </div>
+
+        <div class="content-card">
+          <h3>Key Principles to Remember</h3>
+          <ul>
+            <li><strong>You are the expert.</strong> The AI knows how to code. You know simulation. That combination is powerful.</li>
+            <li><strong>Iterate, don't perfect.</strong> Get something working in 10 minutes, then improve it.</li>
+            <li><strong>One change at a time</strong> produces better, more predictable results than big change lists.</li>
+            <li><strong>Save working versions.</strong> Before asking for big changes, save a copy so you can go back.</li>
+            <li><strong>Share what you build.</strong> These tools are shareable files. A tool you build today could help a colleague next week.</li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3>Ready to Go Further?</h3>
+          <p>Single-file HTML tools are just the beginning. When you're ready to build more complex applications, here's a natural progression:</p>
+          <ul>
+            <li><strong>More complex layouts and interactivity</strong> — ask AI to add multiple screens, user inputs, or data storage using <code>localStorage</code> (built into every browser, no server needed)</li>
+            <li><strong>Claude Code / GitHub Copilot</strong> — AI tools that work directly inside your code editor for larger projects with multiple files</li>
+            <li><strong>GitHub + Vercel</strong> — covered in Lesson 7. Free hosting that gives your tools shareable URLs instead of files.</li>
+            <li><strong>Frameworks (React, Vue)</strong> — for apps with complex state and multiple users; requires more technical groundwork, but AI can still do most of the work</li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3>Share This Course with a Colleague</h3>
+          <p>This file works offline — just like the AED simulator. Share <code>course-guide.html</code> + <code>aed-app.html</code> with a colleague and they can take the full course without an internet connection.</p>
+          <p>If you're accessing this online, share the URL directly. The course works the same way in a browser or as a local file.</p>
+        </div>
+
+        <div class="content-card">
+          <h3>Run This Course with Your Team</h3>
+          <p>Want to facilitate this for others? Toggle <strong>Facilitator Tips</strong> (header button) on any lesson for instructor-facing guidance on timing, facilitation prompts, and common questions.</p>
+        </div>
+
+        <div class="completion-card">
+          <h2>You've completed the course.</h2>
+          <p>You now have the tools to build interactive HTML simulation tools using AI — quickly, cheaply, and without writing a line of code.</p>
+          <p>Share setup instructions with future participants: <a href="./pre-work.html" style="color:white;font-weight:700;">pre-work.html</a></p>
+        </div>
+
+        <div class="lesson-nav">
+          <button class="btn-nav" onclick="showLesson('lesson-5')">← Lesson 5</button>
+          <span class="nav-lesson-label">Lesson 6 of 8</span>
+          <button class="btn-nav" onclick="showLesson('lesson-7')">Next: Lesson 7 →</button>
+        </div>
+      </section>
+
+      <!-- ── Lesson 7 — Publish Your Tool ──────────────────────────────── -->
+      <section class="lesson-section" id="sec-lesson-7">
+
+        <div class="lesson-header">
+          <span class="lesson-eyebrow">Lesson 7</span>
+          <h2 class="lesson-title">Publish Your Tool</h2>
+          <p class="lesson-desc">Give your HTML simulation tool a real URL — shareable with anyone, on any device, from any location.</p>
+          <span class="time-badge">~20 min</span>
+        </div>
+
+        <div class="fac-tips-block" data-tips="lesson-7">
+          <div class="fac-tips-inner">
+            <h4 class="tips-heading">Facilitator Notes</h4>
+            <ul class="tips-list">
+              <li><strong>Timing:</strong> ~20 min live, 30 min solo. Best run after Lesson 4 — learners need a working HTML file to deploy.</li>
+              <li><strong>Prerequisite accounts:</strong> GitHub (free) and Vercel (free, connect with GitHub). Encourage learners to create both before this lesson if running it live.</li>
+              <li><strong>Web UI only:</strong> All steps use the GitHub and Vercel web interfaces — no terminal required.</li>
+              <li><strong>Common issue:</strong> If Vercel shows a build error, it's usually a file naming issue. The file should be named <code>index.html</code> for the root URL to work cleanly.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="content-card card-blue">
+          <h3 class="card-title">Learning Objectives</h3>
+          <ul class="objectives">
+            <li>Upload your HTML tool to a GitHub repository</li>
+            <li>Connect Vercel to GitHub and get a live URL for your tool</li>
+            <li>Update the live tool by re-uploading to GitHub</li>
+          </ul>
+        </div>
+
+        <div class="content-card">
+          <h3 class="card-title">Why a URL Instead of a File?</h3>
+          <ul style="margin:0 0 14px 18px;line-height:1.9;">
+            <li>A permanent link that never changes — bookmark it, share it, put it in your LMS</li>
+            <li>No download needed — learners open it in any browser on any device</li>
+            <li>Auto-updates when you push changes — no need to re-share the file</li>
+            <li>One link for your whole department, cohort, or conference</li>
+          </ul>
+          <div style="background:var(--blue-light);border-left:3px solid var(--blue);padding:10px 14px;border-radius:0 6px 6px 0;font-size:13px;">
+            Once deployed, your tool has a URL like <code>your-project.vercel.app</code>. Share it anywhere — email, QR code, LMS, slide deck.
+          </div>
+        </div>
+
+        <div class="content-card">
+          <h3 class="card-title">What Is GitHub?</h3>
+          <p style="margin-bottom:10px;">GitHub is online storage for files — with a complete history of every version you've saved. Think of it as Google Drive for code files, but with the ability to track and revert every change.</p>
+          <p style="margin-bottom:10px;">You don't need to understand "git" or use the terminal. You can upload files directly through the website.</p>
+          <p>Create a free account at <strong>github.com</strong>.</p>
+        </div>
+
+        <div class="content-card">
+          <h3 class="card-title">Step 1 — Create a GitHub Repository</h3>
+          <p style="margin-bottom:12px;">A repository is a folder on GitHub that holds your files.</p>
+          <ol style="padding-left:20px;font-size:14px;display:flex;flex-direction:column;gap:8px;">
+            <li>Go to <strong>github.com</strong> → sign up or sign in (free)</li>
+            <li>Click the <strong>+</strong> icon (top right) → <strong>New repository</strong></li>
+            <li>Give it a name (e.g., <code>sim-tools</code>)</li>
+            <li>Set visibility to <strong>Public</strong> — Vercel needs read access</li>
+            <li>Check <strong>"Add a README file"</strong></li>
+            <li>Click <strong>Create repository</strong></li>
+          </ol>
+          <div class="browser-mock">
+            <div class="browser-mock-bar">
+              <div class="browser-mock-dots">
+                <div style="width:10px;height:10px;border-radius:50%;background:#ff5f57"></div>
+                <div style="width:10px;height:10px;border-radius:50%;background:#febc2e"></div>
+                <div style="width:10px;height:10px;border-radius:50%;background:#28c840"></div>
+              </div>
+              <div class="browser-mock-url">github.com/yourname/sim-tools</div>
+            </div>
+            <div class="browser-mock-body">
+              <p style="font-weight:700;margin-bottom:4px;">yourname / sim-tools</p>
+              <p style="font-size:12px;color:#6b7280;">Public · 1 file · README.md</p>
+              <p style="font-size:12px;margin-top:8px;color:#3b82f6;">Add file ▾ &nbsp; &lt;&gt; Code ▾</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-card">
+          <h3 class="card-title">Step 2 — Upload Your HTML File</h3>
+          <ol style="padding-left:20px;font-size:14px;display:flex;flex-direction:column;gap:8px;">
+            <li>Inside your repository, click <strong>Add file → Upload files</strong></li>
+            <li>Drag your <code>.html</code> file into the upload area</li>
+            <li><strong>Rename it <code>index.html</code></strong> if you want it at the root URL (e.g., <code>yourproject.vercel.app</code> instead of <code>yourproject.vercel.app/my-tool.html</code>)</li>
+            <li>Add a commit message: "Upload simulation tool"</li>
+            <li>Click <strong>Commit changes</strong></li>
+          </ol>
+          <div style="background:var(--amber-light);border-left:3px solid var(--amber);padding:10px 14px;border-radius:0 6px 6px 0;font-size:13px;margin-top:12px;">
+            Make sure your file is saved as <code>.html</code> before uploading. The same rules from Lesson 4 apply.
+          </div>
+        </div>
+
+        <div class="content-card">
+          <h3 class="card-title">What Is Vercel?</h3>
+          <p style="margin-bottom:10px;">Vercel is a free hosting service that watches your GitHub repository and automatically deploys changes to a live URL.</p>
+          <p style="margin-bottom:10px;">When you update a file on GitHub, Vercel updates your live URL automatically — usually within 30 seconds. No manual re-deploy needed.</p>
+          <p>Create a free account at <strong>vercel.com</strong> — sign in with your GitHub account.</p>
+        </div>
+
+        <div class="content-card">
+          <h3 class="card-title">Step 3 — Deploy with Vercel</h3>
+          <ol style="padding-left:20px;font-size:14px;display:flex;flex-direction:column;gap:8px;">
+            <li>Go to <strong>vercel.com</strong> → sign up with your GitHub account</li>
+            <li>Click <strong>Add New Project</strong></li>
+            <li>Find your repository in the list → click <strong>Import</strong></li>
+            <li>Leave all settings as default → click <strong>Deploy</strong></li>
+            <li>Wait ~30 seconds → Vercel gives you a URL (e.g., <code>sim-tools-abc123.vercel.app</code>)</li>
+            <li>Click the URL — your tool is live</li>
+          </ol>
+          <div class="browser-mock">
+            <div class="browser-mock-bar">
+              <div class="browser-mock-dots">
+                <div style="width:10px;height:10px;border-radius:50%;background:#ff5f57"></div>
+                <div style="width:10px;height:10px;border-radius:50%;background:#febc2e"></div>
+                <div style="width:10px;height:10px;border-radius:50%;background:#28c840"></div>
+              </div>
+              <div class="browser-mock-url">sim-tools.vercel.app</div>
+            </div>
+            <div class="browser-mock-body">
+              <p style="font-weight:700;margin-bottom:4px;">Your simulation tool is live.</p>
+              <p style="font-size:12px;color:#6b7280;">Share this URL with your learners.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-card">
+          <h3 class="card-title">Updating Your Tool</h3>
+          <p style="margin-bottom:12px;">When you want to improve your tool:</p>
+          <ol style="padding-left:20px;font-size:14px;display:flex;flex-direction:column;gap:8px;">
+            <li>Make changes in your AI tool (Claude, ChatGPT, or Gemini)</li>
+            <li>Save the updated file</li>
+            <li>Go to your GitHub repository</li>
+            <li>Click <strong>Add file → Upload files</strong></li>
+            <li>Upload the updated file with the same filename</li>
+            <li>Click <strong>Commit changes</strong> — Vercel auto-deploys within 30 seconds</li>
+          </ol>
+          <div style="background:var(--green-light);border-left:3px solid var(--green);padding:10px 14px;border-radius:0 6px 6px 0;font-size:13px;margin-top:12px;">
+            The URL never changes. Anyone who bookmarked it will automatically see the updated version.
+          </div>
+        </div>
+
+        <div class="lesson-nav">
+          <button class="btn-nav" onclick="showLesson('lesson-6')">← Lesson 6</button>
+          <span class="nav-lesson-label">Lesson 7 of 8</span>
+          <button class="btn-nav" onclick="showLesson('lesson-8')">Next: Lesson 8 →</button>
+        </div>
+
+      </section>
+
+    </div><!-- /lesson-area -->
+  </main>
+</div><!-- /app-shell -->
+
+<script>
+  const LESSONS = [
+    'getting-started','glossary',
+    'lesson-1','lesson-2','lesson-3','lesson-4','lesson-5','lesson-6','lesson-7','lesson-8'
+  ];
+  const LESSON_LABELS = {
+    'getting-started': 'Getting Started',
+    'glossary':        'Glossary',
+    'lesson-1':        'Lesson 1 — What Is JITF?',
+    'lesson-2':        'Lesson 2 — See It in Action',
+    'lesson-3':        'Lesson 3 — Prompt Templates',
+    'lesson-4':        'Lesson 4 — Build Your Tool',
+    'lesson-5':        'Lesson 5 — Share & Reflect',
+    'lesson-6':        'Lesson 6 — Resources & Next Steps',
+    'lesson-7':        'Lesson 7 — Publish Your Tool',
+    'lesson-8':        'Lesson 8 — Troubleshooting',
+  };
+
+  let tipsVisible = false;
+
+  function showLesson(id) {
+    document.querySelectorAll('.lesson-section').forEach(s => s.classList.remove('active'));
+    const target = document.getElementById('sec-' + id);
+    if (target) { target.classList.add('active'); window.scrollTo(0, 0); }
+
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.classList.remove('active');
+      const onclick = link.getAttribute('onclick') || '';
+      if (onclick.includes("'" + id + "'")) link.classList.add('active');
+    });
+
+    const counter = document.getElementById('lessonCounter');
+    if (counter) counter.textContent = LESSON_LABELS[id] || id;
+
+    applyTipsState();
+    window.location.hash = id;
+    closeSidebar();
+  }
+
+  function toggleFacilitatorTips() {
+    tipsVisible = !tipsVisible;
+    const btn = document.getElementById('btnTips');
+    btn.classList.toggle('active', tipsVisible);
+    btn.textContent = tipsVisible ? '🎓 Hide Tips' : '🎓 Facilitator Tips';
+    applyTipsState();
+  }
+
+  function applyTipsState() {
+    document.querySelectorAll('.fac-tips-block').forEach(b => b.classList.toggle('visible', tipsVisible));
+  }
+
+  function toggleTheme() {
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    document.querySelector('.btn-theme').textContent = isDark ? '🌙' : '☀️';
+  }
+
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('visible');
+  }
+
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('visible');
+  }
+
+  (function init() {
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      const btn = document.querySelector('.btn-theme');
+      if (btn) btn.textContent = '☀️';
+    }
+    const hash = window.location.hash.replace('#', '');
+    showLesson(LESSONS.includes(hash) ? hash : 'getting-started');
+    window.addEventListener('hashchange', function() {
+      const h = window.location.hash.replace('#', '');
+      if (LESSONS.includes(h)) showLesson(h);
+    });
+  })();
+
+  function copyPrompt(id) {
+    const el = document.getElementById(id);
+    const text = el.tagName === 'TEXTAREA' ? el.value : el.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = el.parentElement.querySelector('.btn-copy');
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = orig; }, 2000);
+    });
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pre-Work — Just in Time Fidelity · IPSSW 2026</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:        #1d6fa4;
+      --blue-light:  #eef5fb;
+      --teal:        #0e8a7f;
+      --green:       #2a7a3b;
+      --green-light: #eef8f0;
+      --amber:       #c47700;
+      --border:      #d8dde3;
+      --text:        #1a1e23;
+      --muted:       #6b7280;
+      --bg:          #eef1f5;
+      --surface:     #ffffff;
+      --header-bg:   #1d6fa4;
+      --header-text: #ffffff;
+      --code-bg:     #1a1e23;
+      --code-text:   #e2e8f0;
+    }
+
+    [data-theme="dark"] {
+      --border:      #2e3440;
+      --text:        #e2e8f0;
+      --muted:       #9ca3af;
+      --bg:          #111827;
+      --surface:     #1f2937;
+      --header-bg:   #111827;
+      --header-text: #e2e8f0;
+      --blue-light:  #1e3a52;
+      --green-light: #1a3326;
+      --code-bg:     #0d1117;
+      --code-text:   #e2e8f0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Georgia, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      font-size: 15px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    /* ── Header ────────────────────────────────────────────────────── */
+    .site-header {
+      background: var(--header-bg);
+      color: var(--header-text);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid rgba(0,0,0,0.15);
+    }
+    .header-inner {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .header-title { font-size: 15px; font-weight: 700; }
+    .header-subtitle { font-size: 12px; opacity: 0.75; margin-top: 1px; }
+    .header-chip {
+      margin-left: auto;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 20px;
+      padding: 3px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .btn-theme {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: inherit;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 13px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+    .btn-theme:hover { background: rgba(255,255,255,0.25); }
+
+    /* ── Content Column ─────────────────────────────────────────────── */
+    .content {
+      max-width: 660px;
+      margin: 0 auto;
+      padding: 36px 24px 64px;
+    }
+
+    /* ── Hero Block ─────────────────────────────────────────────────── */
+    .hero {
+      background: var(--blue);
+      color: white;
+      border-radius: 12px;
+      padding: 32px 36px;
+      margin-bottom: 32px;
+    }
+    .hero .eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 3px;
+      text-transform: uppercase; opacity: 0.7; margin-bottom: 10px;
+    }
+    .hero h1 { font-size: 26px; font-weight: 800; margin-bottom: 8px; line-height: 1.25; }
+    .hero .tagline { font-size: 15px; opacity: 0.88; margin-bottom: 14px; }
+    .hero .reassurance {
+      background: rgba(255,255,255,0.15);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 13px;
+      opacity: 0.95;
+      margin-bottom: 10px;
+    }
+    .hero .laptop-note {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 13px;
+      opacity: 0.95;
+    }
+
+    /* ── Setup Cards ────────────────────────────────────────────────── */
+    .setup-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--blue-light);
+    }
+    .step-badge {
+      width: 32px; height: 32px;
+      background: var(--blue);
+      color: white;
+      border-radius: 50%;
+      font-size: 14px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .card-title { font-size: 16px; font-weight: 700; }
+    .card-subtitle { font-size: 12px; color: var(--muted); margin-top: 1px; }
+    .card-body { padding: 20px 24px; }
+
+    /* ── Option Rows ─────────────────────────────────────────────────── */
+    .option-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .option-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .option-row:first-child { padding-top: 0; }
+    .option-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+    .option-name { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+    .option-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .option-badge {
+      display: inline-block;
+      background: var(--green);
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border-radius: 4px;
+      padding: 2px 7px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    /* ── Mock Terminal ──────────────────────────────────────────────── */
+    .terminal-mock {
+      background: #1a1e23;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 12px 0;
+      font-family: 'Menlo', 'Consolas', monospace;
+      font-size: 12.5px;
+      line-height: 1.7;
+    }
+    .terminal-titlebar {
+      background: #2d2d2d;
+      padding: 7px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .terminal-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .terminal-dot.red    { background: #ff5f56; }
+    .terminal-dot.yellow { background: #ffbd2e; }
+    .terminal-dot.green  { background: #27c93f; }
+    .terminal-label {
+      color: #999;
+      font-size: 11px;
+      margin: 0 auto;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    .terminal-body { padding: 12px 16px; color: #e2e8f0; }
+    .t-prompt { color: #27c93f; }
+    .t-cmd    { color: #e2e8f0; }
+    .t-out    { color: #6b7280; }
+    .t-cursor { color: #e2e8f0; animation: blink 1s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* ── Terminal collapsible wrapper ───────────────────────────────── */
+    details.terminal-optional {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+    details.terminal-optional summary {
+      padding: 11px 16px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      background: var(--bg);
+      list-style: none;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    details.terminal-optional summary::-webkit-details-marker { display: none; }
+    details.terminal-optional summary::before { content: '▶  '; font-size: 10px; }
+    details.terminal-optional[open] summary::before { content: '▼  '; }
+    details.terminal-optional .terminal-content { padding: 16px 20px 20px; }
+
+    /* ── Editor Guide (expandable) ──────────────────────────────────── */
+    details.editor-guide {
+      margin-top: 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    details.editor-guide summary {
+      padding: 9px 14px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--blue);
+      background: var(--blue-light);
+      list-style: none;
+      user-select: none;
+    }
+    details.editor-guide summary::-webkit-details-marker { display: none; }
+    details.editor-guide summary::before { content: '▶  '; font-size: 10px; }
+    details.editor-guide[open] summary::before { content: '▼  '; }
+    details.editor-guide .guide-body {
+      padding: 16px;
+      font-size: 13px;
+      background: var(--surface);
+    }
+    details.editor-guide .guide-body p  { margin-bottom: 8px; color: var(--text); }
+    details.editor-guide .guide-body ul,
+    details.editor-guide .guide-body ol { padding-left: 18px; margin-bottom: 10px; }
+    details.editor-guide .guide-body li { margin-bottom: 5px; color: var(--text); }
+
+    /* ── Editor Mockup ──────────────────────────────────────────────── */
+    .editor-mock {
+      border: 1px solid #404040;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 14px 0 10px;
+      font-size: 11px;
+    }
+    .editor-mock-titlebar {
+      background: #3c3c3c;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .em-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .em-dot.red    { background: #ff5f56; }
+    .em-dot.yellow { background: #ffbd2e; }
+    .em-dot.green  { background: #27c93f; }
+    .em-title {
+      color: #ccc;
+      font-size: 11px;
+      margin: 0 auto;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    .editor-mock-body {
+      display: flex;
+      height: 150px;
+    }
+    .editor-mock-actbar {
+      width: 36px;
+      flex-shrink: 0;
+      background: #333333;
+      border-right: 1px solid #404040;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 8px;
+      gap: 10px;
+    }
+    .em-act-icon {
+      width: 22px; height: 22px;
+      background: #555;
+      border-radius: 4px;
+      font-size: 12px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .em-act-icon.active { background: var(--blue); }
+    .editor-mock-sidebar {
+      width: 110px;
+      flex-shrink: 0;
+      background: #252526;
+      border-right: 1px solid #404040;
+      padding: 6px 0;
+      overflow: hidden;
+    }
+    .em-sidebar-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #aaa;
+      padding: 2px 8px 4px;
+      font-family: -apple-system, sans-serif;
+    }
+    .em-folder {
+      padding: 2px 8px;
+      color: #ccc;
+      font-size: 11px;
+      font-family: 'Menlo', monospace;
+      white-space: nowrap;
+    }
+    .em-file {
+      padding: 2px 8px 2px 18px;
+      color: #9cdcfe;
+      font-size: 11px;
+      font-family: 'Menlo', monospace;
+      white-space: nowrap;
+    }
+    .em-file.active { background: #094771; }
+    .editor-mock-main {
+      flex: 1;
+      background: #1e1e1e;
+      padding: 8px 12px;
+      overflow: hidden;
+    }
+    .em-line {
+      display: flex;
+      gap: 10px;
+      line-height: 1.65;
+      font-family: 'Menlo', 'Consolas', monospace;
+      font-size: 11px;
+    }
+    .em-num { color: #4a4a4a; width: 14px; text-align: right; flex-shrink: 0; }
+    .em-tag { color: #569cd6; }
+    .em-attr { color: #9cdcfe; }
+    .em-val { color: #ce9178; }
+    .em-comment { color: #6a9955; }
+    .em-text { color: #d4d4d4; }
+
+    /* Annotation legend below mockup */
+    .editor-mock-legend {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+      font-size: 11px;
+      font-family: -apple-system, sans-serif;
+      color: var(--muted);
+    }
+    .em-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .em-legend-swatch {
+      width: 10px; height: 10px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    /* ── Note / Callout ─────────────────────────────────────────────── */
+    .note {
+      background: #fffbeb;
+      border: 1px solid #f6d860;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      margin-top: 14px;
+      color: #7a5800;
+    }
+    [data-theme="dark"] .note {
+      background: #2a2210;
+      border-color: #856500;
+      color: #e2c97e;
+    }
+    .note strong { font-weight: 700; }
+
+    /* ── Completion Block ───────────────────────────────────────────── */
+    .completion {
+      background: var(--green);
+      color: white;
+      border-radius: 12px;
+      padding: 28px 32px;
+      margin-top: 8px;
+      margin-bottom: 32px;
+    }
+    .completion h2 { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+    .completion p { font-size: 14px; opacity: 0.92; margin-bottom: 10px; }
+    .completion p:last-child { margin-bottom: 0; }
+    .completion a { color: white; font-weight: 700; text-decoration: underline; opacity: 0.9; }
+    .completion a:hover { opacity: 1; }
+
+    /* ── Footer ─────────────────────────────────────────────────────── */
+    .footer { text-align: center; font-size: 12px; color: var(--muted); margin-top: 16px; }
+
+    p { font-size: 14px; margin-bottom: 10px; }
+    p:last-child { margin-bottom: 0; }
+    strong { font-weight: 700; }
+    a { color: var(--blue); }
+    a:hover { text-decoration: underline; }
+    code {
+      background: var(--code-bg);
+      color: var(--code-text);
+      font-family: 'Menlo', 'Consolas', monospace;
+      font-size: 12px;
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    @media (max-width: 480px) {
+      .header-inner { padding: 12px 16px; }
+      .content { padding: 24px 16px 48px; }
+      .hero { padding: 24px 20px; }
+      .card-body { padding: 16px 18px; }
+      .card-header { padding: 14px 18px; }
+      .completion { padding: 22px 20px; }
+      .header-chip { display: none; }
+      .terminal-mock { font-size: 11px; }
+      .editor-mock-body { height: auto; min-height: 120px; }
+      .editor-mock-actbar { display: none; }
+      .editor-mock-sidebar { width: 90px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ────────────────────────────────────────────────────────── -->
+<header class="site-header">
+  <div class="header-inner">
+    <div>
+      <div class="header-title">Just in Time Fidelity</div>
+      <div class="header-subtitle">Workshop Pre-Work · IPSSW 2026</div>
+    </div>
+    <div class="header-chip">~10 min</div>
+    <button class="btn-theme" onclick="toggleTheme()" aria-label="Toggle dark mode">🌙 Dark mode</button>
+  </div>
+</header>
+
+<!-- ── Content ───────────────────────────────────────────────────────── -->
+<main class="content">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="eyebrow">Before the Workshop</div>
+    <h1>3 things to do before you arrive</h1>
+    <p class="tagline">Set up the tools you'll need for the workshop. Takes about 10 minutes — and you only have to do this once.</p>
+    <div class="reassurance">
+      ✅ &nbsp;No coding experience needed. &nbsp;|&nbsp; ✅ &nbsp;All tools are free. &nbsp;|&nbsp; ✅ &nbsp;Works on any laptop.
+    </div>
+    <div class="laptop-note" style="margin-top:10px;">
+      <strong>💻 A laptop is strongly preferred.</strong> The hands-on activities are designed for a full keyboard and browser. <em>If you only have a tablet or phone, reach out to your facilitator — you'll be paired with a partner for the build activity.</em>
+    </div>
+  </div>
+
+  <!-- ── Step 1: AI Account ──────────────────────────────────────────── -->
+  <div class="setup-card">
+    <div class="card-header">
+      <div class="step-badge">1</div>
+      <div class="card-header-text">
+        <div class="card-title">Create an AI Account</div>
+        <div class="card-subtitle">You'll use this to generate your simulation tool during the workshop</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <p>The workshop uses agentic AI tools to generate HTML simulation tools from plain-language descriptions. You'll need a free account with at least one of the options below before you arrive.</p>
+
+      <div class="option-row">
+        <div class="option-icon"><svg width="28" height="28" viewBox="0 0 28 28" style="display:block"><rect width="28" height="28" rx="6" fill="#D97757"/><path d="M14 7l4.5 7.5-1.5 0.5L14 10l-3 5-1.5-0.5z M10.5 16l7 0 0.5 1.5-8 0z M11 18l6 0 1 2.5-8 0z" fill="white"/></svg></div>
+        <div>
+          <div class="option-name">Claude <span class="option-badge">Recommended</span></div>
+          <div class="option-desc">Go to <a href="https://claude.ai" target="_blank"><strong>claude.ai</strong></a> → Sign Up → free tier is available. Claude tends to generate complete, clean HTML in one shot, which makes the workshop workflow smoother. This is the AI used in the live demo.</div>
+        </div>
+      </div>
+
+      <div class="option-row">
+        <div class="option-icon"><svg width="28" height="28" viewBox="0 0 28 28" style="display:block"><rect width="28" height="28" rx="6" fill="#10a37f"/><circle cx="14" cy="14" r="5.5" fill="none" stroke="white" stroke-width="1.5"/><path d="M14 8.5 Q19 11 19 14 Q19 17 14 19.5 Q9 17 9 14 Q9 11 14 8.5z" fill="none" stroke="white" stroke-width="1"/></svg></div>
+        <div>
+          <div class="option-name">ChatGPT</div>
+          <div class="option-desc">Go to <a href="https://chat.openai.com" target="_blank"><strong>chat.openai.com</strong></a> → Sign Up → free tier available. Widely used and works well with the prompt templates from this workshop.</div>
+        </div>
+      </div>
+
+      <div class="option-row">
+        <div class="option-icon"><svg width="28" height="28" viewBox="0 0 28 28" style="display:block"><rect width="28" height="28" rx="6" fill="#4285f4"/><path d="M14 7 L15.2 12.8 L21 14 L15.2 15.2 L14 21 L12.8 15.2 L7 14 L12.8 12.8 Z" fill="white"/></svg></div>
+        <div>
+          <div class="option-name">Gemini</div>
+          <div class="option-desc">Go to <a href="https://gemini.google.com" target="_blank"><strong>gemini.google.com</strong></a> → Sign in with your Google account → free to use. A good option if you're already in the Google ecosystem.</div>
+        </div>
+      </div>
+
+      <div class="note">
+        <strong>Note:</strong> All three AI tools work with the prompt templates in the workshop. You only need one account.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Step 2: Install a Code Editor ──────────────────────────────── -->
+  <div class="setup-card">
+    <div class="card-header">
+      <div class="step-badge">2</div>
+      <div class="card-header-text">
+        <div class="card-title">Install a Code Editor</div>
+        <div class="card-subtitle">Where you'll paste AI output, save it as an HTML file, and open it in a browser</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <p>You'll copy code from the AI tool and paste it into a file, then save it as <code>.html</code>. A code editor makes this easier and reduces the chance of accidentally breaking the file. You'll need to install one before the workshop.</p>
+      <p>Once saved, <strong>open your HTML file by double-clicking it</strong> — it will open in your default browser. You can also drag the file into any browser window.</p>
+
+      <div class="option-row">
+        <div class="option-icon">⚡</div>
+        <div>
+          <div class="option-name">Cursor <span class="option-badge">Recommended</span></div>
+          <div class="option-desc">An AI-native code editor. Download free at <a href="https://cursor.com" target="_blank"><strong>cursor.com</strong></a>. Has a free tier and makes it easy to paste, preview, and iterate on HTML files. This is what most participants use during the workshop.
+            <details class="editor-guide">
+              <summary>Getting started with Cursor</summary>
+              <div class="guide-body">
+
+                <!-- CSS Editor Mockup -->
+                <div class="editor-mock">
+                  <div class="editor-mock-titlebar">
+                    <span class="em-dot red"></span>
+                    <span class="em-dot yellow"></span>
+                    <span class="em-dot green"></span>
+                    <span class="em-title">Cursor</span>
+                  </div>
+                  <div class="editor-mock-body">
+                    <div class="editor-mock-actbar">
+                      <div class="em-act-icon active">📁</div>
+                      <div class="em-act-icon">🔍</div>
+                      <div class="em-act-icon">⚙️</div>
+                    </div>
+                    <div class="editor-mock-sidebar">
+                      <div class="em-sidebar-label">Explorer</div>
+                      <div class="em-folder">📁 my-sim-tools</div>
+                      <div class="em-file active">📄 my-tool.html</div>
+                    </div>
+                    <div class="editor-mock-main">
+                      <div class="em-line"><span class="em-num">1</span><span class="em-tag">&lt;!DOCTYPE html&gt;</span></div>
+                      <div class="em-line"><span class="em-num">2</span><span class="em-tag">&lt;html <span class="em-attr">lang</span>=<span class="em-val">"en"</span>&gt;</span></div>
+                      <div class="em-line"><span class="em-num">3</span><span class="em-tag">&lt;head&gt;</span></div>
+                      <div class="em-line"><span class="em-num">4</span><span class="em-comment">&nbsp;&nbsp;&lt;!-- paste AI code here --&gt;</span></div>
+                      <div class="em-line"><span class="em-num">5</span><span class="em-tag">&lt;/head&gt;</span></div>
+                      <div class="em-line"><span class="em-num">6</span><span class="em-tag">&lt;body&gt;</span></div>
+                      <div class="em-line"><span class="em-num">7</span><span class="em-text">&nbsp;&nbsp;...</span></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="editor-mock-legend">
+                  <span class="em-legend-item"><span class="em-legend-swatch" style="background:#094771;"></span> Active file</span>
+                  <span style="color:var(--border)">·</span>
+                  <span class="em-legend-item"><span class="em-legend-swatch" style="background:#252526;"></span> File explorer (sidebar)</span>
+                  <span style="color:var(--border)">·</span>
+                  <span class="em-legend-item"><span class="em-legend-swatch" style="background:#1e1e1e;"></span> Editor area</span>
+                </div>
+
+                <p style="margin-top:12px;"><strong>Setup steps:</strong></p>
+                <ol>
+                  <li>Open Cursor → <strong>File → Open Folder</strong> → create or choose a folder on your Desktop (e.g., "my-sim-tools")</li>
+                  <li>Create a new file: click the <strong>New File</strong> icon in the sidebar → name it anything ending in <code>.html</code></li>
+                  <li>Paste your AI-generated code into the editor area</li>
+                  <li>Save: <strong>Cmd+S</strong> (Mac) or <strong>Ctrl+S</strong> (Windows)</li>
+                  <li>Double-click the file in Finder/Explorer to open it in your browser — or drag it into a browser window</li>
+                </ol>
+              </div>
+            </details>
+          </div>
+        </div>
+      </div>
+
+      <div class="option-row">
+        <div class="option-icon">📝</div>
+        <div>
+          <div class="option-name">VS Code</div>
+          <div class="option-desc">The industry-standard free code editor. Download at <a href="https://code.visualstudio.com" target="_blank"><strong>code.visualstudio.com</strong></a>. Excellent syntax highlighting and a great option if you already have it installed.
+            <details class="editor-guide">
+              <summary>Getting started with VS Code</summary>
+              <div class="guide-body">
+
+                <!-- CSS Editor Mockup -->
+                <div class="editor-mock">
+                  <div class="editor-mock-titlebar">
+                    <span class="em-dot red"></span>
+                    <span class="em-dot yellow"></span>
+                    <span class="em-dot green"></span>
+                    <span class="em-title">Visual Studio Code</span>
+                  </div>
+                  <div class="editor-mock-body">
+                    <div class="editor-mock-actbar">
+                      <div class="em-act-icon active">📁</div>
+                      <div class="em-act-icon">🔍</div>
+                      <div class="em-act-icon">🧩</div>
+                      <div class="em-act-icon">⚙️</div>
+                    </div>
+                    <div class="editor-mock-sidebar">
+                      <div class="em-sidebar-label">Explorer</div>
+                      <div class="em-folder">📁 my-sim-tools</div>
+                      <div class="em-file active">📄 my-tool.html</div>
+                    </div>
+                    <div class="editor-mock-main">
+                      <div class="em-line"><span class="em-num">1</span><span class="em-tag">&lt;!DOCTYPE html&gt;</span></div>
+                      <div class="em-line"><span class="em-num">2</span><span class="em-tag">&lt;html <span class="em-attr">lang</span>=<span class="em-val">"en"</span>&gt;</span></div>
+                      <div class="em-line"><span class="em-num">3</span><span class="em-tag">&lt;head&gt;</span></div>
+                      <div class="em-line"><span class="em-num">4</span><span class="em-comment">&nbsp;&nbsp;&lt;!-- paste AI code here --&gt;</span></div>
+                      <div class="em-line"><span class="em-num">5</span><span class="em-tag">&lt;/head&gt;</span></div>
+                      <div class="em-line"><span class="em-num">6</span><span class="em-tag">&lt;body&gt;</span></div>
+                      <div class="em-line"><span class="em-num">7</span><span class="em-text">&nbsp;&nbsp;...</span></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="editor-mock-legend">
+                  <span class="em-legend-item"><span class="em-legend-swatch" style="background:#094771;"></span> Active file</span>
+                  <span style="color:var(--border)">·</span>
+                  <span class="em-legend-item"><span class="em-legend-swatch" style="background:#252526;"></span> File explorer (sidebar)</span>
+                  <span style="color:var(--border)">·</span>
+                  <span class="em-legend-item"><span class="em-legend-swatch" style="background:#1e1e1e;"></span> Editor area</span>
+                </div>
+
+                <p style="margin-top:12px;"><strong>Setup steps:</strong></p>
+                <ol>
+                  <li>Open VS Code → <strong>File → Open Folder</strong> → create or choose a folder on your Desktop</li>
+                  <li>Create a new file: <strong>File → New File</strong> → name it anything ending in <code>.html</code></li>
+                  <li>Paste your AI-generated code into the editor area</li>
+                  <li>Save: <strong>Cmd+S</strong> (Mac) or <strong>Ctrl+S</strong> (Windows)</li>
+                  <li>Double-click the file in Finder/Explorer to open it in your browser — or drag it into a browser window</li>
+                </ol>
+                <p><strong>Optional:</strong> Install the <strong>Live Preview</strong> extension (search Extensions panel) to preview HTML directly inside VS Code.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--tip-bg,#fffbeb);border:1px solid var(--tip-border,#f6d860);color:var(--tip-text,#7a5800);border-radius:6px;padding:10px 14px;font-size:13px;margin:12px 0 4px;">
+        <strong>Advanced option — Claude Code:</strong> If you're using Cursor, Claude Code runs directly in Cursor's terminal as an alternative to the browser AI interface. More powerful for iteration. Requires Claude Pro ($20/mo). Not needed for this workshop — worth exploring after.
+      </div>
+
+      <div class="option-row">
+        <div class="option-icon">📄</div>
+        <div>
+          <div class="option-name">TextEdit (Mac) / Notepad (Windows)</div>
+          <div class="option-desc">
+            Works as a last resort — no download needed. But you must take an extra step:<br><br>
+            <strong>Mac TextEdit:</strong> Go to Format → Make Plain Text before saving. Save the file with a <code>.html</code> extension.<br><br>
+            <strong>Windows Notepad:</strong> In the Save dialog, change "Save as type" to All Files, then name the file with quotes: <code>"my-tool.html"</code> — this prevents Windows from adding <code>.txt</code> automatically.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Step 3: Terminal (Optional) ───────────────────────────────── -->
+  <div class="setup-card">
+    <div class="card-header">
+      <div class="step-badge" style="background:var(--muted);">3</div>
+      <div class="card-header-text">
+        <div class="card-title">Terminal Access <em style="font-weight:400;font-size:13px;">— optional</em></div>
+        <div class="card-subtitle">Not required for installation or opening files — here if you want it</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <p>A terminal lets you type commands to control your computer. <strong>You don't need it for this workshop</strong> — everything can be done by double-clicking files and using the menus in your code editor. It's included here as a reference for those who want it.</p>
+
+      <details class="terminal-optional">
+        <summary>Show terminal instructions — Mac &amp; Windows</summary>
+        <div class="terminal-content">
+
+          <p style="margin-bottom:14px;font-size:13px;color:var(--muted);">A terminal is a text-based interface to your computer — you type commands instead of clicking icons. The commands below navigate to your Desktop and open an HTML file. Replace <code>your-filename.html</code> with the actual name of your file.</p>
+
+          <strong style="font-size:13px;">🍎 Mac — Terminal</strong>
+          <p style="font-size:13px;margin:6px 0 4px;"><strong>How to open:</strong> Press <strong>Cmd + Space</strong>, type "Terminal", press Enter.</p>
+          <p style="font-size:13px;margin-bottom:6px;">When it opens, you'll see a blinking cursor — it's ready for a command:</p>
+          <div class="terminal-mock">
+            <div class="terminal-titlebar">
+              <span class="terminal-dot red"></span>
+              <span class="terminal-dot yellow"></span>
+              <span class="terminal-dot green"></span>
+              <span class="terminal-label">Terminal — zsh</span>
+            </div>
+            <div class="terminal-body">
+              <span class="t-prompt">yourname@MacBook ~ %</span> <span class="t-cursor">█</span>
+            </div>
+          </div>
+          <p style="font-size:13px;margin:8px 0 4px;"><strong>Navigate to your Desktop, then open your file:</strong></p>
+          <div class="terminal-mock">
+            <div class="terminal-titlebar">
+              <span class="terminal-dot red"></span>
+              <span class="terminal-dot yellow"></span>
+              <span class="terminal-dot green"></span>
+              <span class="terminal-label">Terminal — zsh</span>
+            </div>
+            <div class="terminal-body">
+              <span class="t-prompt">yourname@MacBook ~ %</span> <span class="t-cmd">cd ~/Desktop</span><br>
+              <span class="t-prompt">yourname@MacBook Desktop %</span> <span class="t-cmd">open your-filename.html</span><br>
+              <span class="t-out"># Your default browser opens the file automatically</span>
+            </div>
+          </div>
+
+          <strong style="font-size:13px;display:block;margin-top:18px;">🪟 Windows — Command Prompt</strong>
+          <p style="font-size:13px;margin:6px 0 4px;"><strong>How to open:</strong> Press <strong>Win + R</strong>, type <code>cmd</code>, press Enter.</p>
+          <div class="terminal-mock">
+            <div class="terminal-titlebar">
+              <span class="terminal-dot red"></span>
+              <span class="terminal-dot yellow"></span>
+              <span class="terminal-dot green"></span>
+              <span class="terminal-label">Command Prompt</span>
+            </div>
+            <div class="terminal-body">
+              <span class="t-prompt">C:\Users\YourName&gt;</span> <span class="t-cmd">cd Desktop</span><br>
+              <span class="t-prompt">C:\Users\YourName\Desktop&gt;</span> <span class="t-cmd">start your-filename.html</span><br>
+              <span class="t-out">:: Your default browser opens the file automatically</span>
+            </div>
+          </div>
+
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- ── Completion Block ───────────────────────────────────────────── -->
+  <div class="completion">
+    <h2>You're all set.</h2>
+    <p>Bring your laptop and these three things are all you need. We'll cover everything else during the workshop.</p>
+    <p>If you want to explore more before we meet, the full <a href="./course-guide.html">Just in Time Fidelity course</a> is available — you can jump ahead to any lesson.</p>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    Just in Time Fidelity Workshop &middot; IPSSW 2026
+  </div>
+
+</main>
+
+<script>
+  function toggleTheme() {
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    document.querySelector('.btn-theme').textContent = isDark ? '🌙 Dark mode' : '☀️ Light mode';
+  }
+
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.querySelector('.btn-theme').textContent = '☀️ Light mode';
+  }
+</script>
+</body>
+</html>
