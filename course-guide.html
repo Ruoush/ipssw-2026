@@ -1199,6 +1199,26 @@
           <p style="font-size:13px;color:var(--muted);">Write it down or voice-memo it. You'll use it in Lesson 3 and build it in Lesson 4.</p>
         </div>
 
+        <div class="content-card">
+          <h3 class="card-title">Scenario Inspiration</h3>
+          <p style="margin-bottom:14px;font-size:13px;color:var(--muted);">Not sure where to start? These are common simulation scenarios that translate well to HTML tools.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div style="background:var(--bg);border-radius:6px;padding:10px 12px;font-size:13px;"><strong>ACLS / Code Blue</strong><br><span style="color:var(--muted);font-size:12px;">Rhythm recognition, medication decisions, team roles</span></div>
+            <div style="background:var(--bg);border-radius:6px;padding:10px 12px;font-size:13px;"><strong>Sepsis Recognition</strong><br><span style="color:var(--muted);font-size:12px;">Early warning signs, SIRS criteria, escalation decisions</span></div>
+            <div style="background:var(--bg);border-radius:6px;padding:10px 12px;font-size:13px;"><strong>Medication Safety</strong><br><span style="color:var(--muted);font-size:12px;">Dose calculations, five rights, high-alert drug checks</span></div>
+            <div style="background:var(--bg);border-radius:6px;padding:10px 12px;font-size:13px;"><strong>OB Emergency</strong><br><span style="color:var(--muted);font-size:12px;">Shoulder dystocia, postpartum hemorrhage, eclampsia</span></div>
+            <div style="background:var(--bg);border-radius:6px;padding:10px 12px;font-size:13px;"><strong>Trauma Triage</strong><br><span style="color:var(--muted);font-size:12px;">Primary survey, prioritization, handoff communication</span></div>
+            <div style="background:var(--bg);border-radius:6px;padding:10px 12px;font-size:13px;"><strong>Airway Management</strong><br><span style="color:var(--muted);font-size:12px;">RSI checklist, difficult airway decision tree, equipment setup</span></div>
+            <div style="background:var(--bg);border-radius:6px;padding:10px 12px;font-size:13px;"><strong>Pediatric Emergency</strong><br><span style="color:var(--muted);font-size:12px;">Weight-based dosing, Broselow reference, febrile seizure</span></div>
+            <div style="background:var(--bg);border-radius:6px;padding:10px 12px;font-size:13px;"><strong>SBAR / Handoff</strong><br><span style="color:var(--muted);font-size:12px;">Structured communication practice, escalation scenarios</span></div>
+            <div style="background:var(--bg);border-radius:6px;padding:10px 12px;font-size:13px;"><strong>Stroke Response</strong><br><span style="color:var(--muted);font-size:12px;">FAST assessment, time-to-CT decision, team notification</span></div>
+            <div style="background:var(--bg);border-radius:6px;padding:10px 12px;font-size:13px;"><strong>Mental Health Crisis</strong><br><span style="color:var(--muted);font-size:12px;">De-escalation, safety assessment, documentation</span></div>
+            <div style="background:var(--bg);border-radius:6px;padding:10px 12px;font-size:13px;"><strong>Anaphylaxis</strong><br><span style="color:var(--muted);font-size:12px;">Recognition, epinephrine timing, monitoring checklist</span></div>
+            <div style="background:var(--bg);border-radius:6px;padding:10px 12px;font-size:13px;"><strong>Mass Casualty / Triage</strong><br><span style="color:var(--muted);font-size:12px;">START triage, resource allocation, command roles</span></div>
+          </div>
+          <p style="margin-top:12px;font-size:12px;color:var(--muted);">Any scenario that has a decision point, a sequence of steps, or a checklist is a good candidate.</p>
+        </div>
+
         <div class="lesson-nav">
           <button class="btn-nav" onclick="showLesson('glossary')">← Glossary</button>
           <span class="nav-lesson-label">Lesson 1 of 8</span>
@@ -1394,6 +1414,24 @@ at 110 bpm with a 2-minute countdown timer. No external libraries. Dark theme.</
             <span class="callout-icon">📋</span>
             <div><strong>Works with any agentic AI tool</strong> — Claude, ChatGPT, Gemini, or others. Open one now and follow along.</div>
           </div>
+        </div>
+
+        <div class="content-card">
+          <h3 class="card-title">What a Difference a Prompt Makes</h3>
+          <p style="margin-bottom:16px;">Same AI, same task — different results based on how the request was written.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+            <div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--red);margin-bottom:6px;">Vague prompt</div>
+              <div style="background:var(--code-bg);color:var(--code-text);border-radius:6px;padding:12px 14px;font-family:'Menlo','Consolas',monospace;font-size:12px;line-height:1.6;">"Make me a sepsis simulation."</div>
+              <div style="margin-top:8px;background:var(--red-light);border-left:3px solid var(--red);padding:10px 12px;border-radius:0 6px 6px 0;font-size:12px;line-height:1.6;">You'll get something generic — probably a basic quiz with yes/no questions and no clinical context. It might technically be about sepsis, but it won't reflect your learners or your program.</div>
+            </div>
+            <div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--green);margin-bottom:6px;">Specific prompt</div>
+              <div style="background:var(--code-bg);color:var(--code-text);border-radius:6px;padding:12px 14px;font-family:'Menlo','Consolas',monospace;font-size:12px;line-height:1.6;">"Build a single-file HTML sepsis recognition tool for third-year nursing students. Learners are presented with a patient case (temp 38.9°C, HR 112, RR 22, suspected UTI) and must identify two SIRS criteria and select the correct escalation action from four options. Include a 90-second decision timer and show correct/incorrect feedback."</div>
+              <div style="margin-top:8px;background:var(--green-light);border-left:3px solid var(--green);padding:10px 12px;border-radius:0 6px 6px 0;font-size:12px;line-height:1.6;">You'll get a working, scenario-specific tool with a timer, real clinical values, and meaningful feedback — often on the first try.</div>
+            </div>
+          </div>
+          <p style="font-size:13px;color:var(--muted);">The templates below give you the structure. Your job is to fill in the specifics — that's what makes the output yours.</p>
         </div>
 
         <div class="prompt-card">
