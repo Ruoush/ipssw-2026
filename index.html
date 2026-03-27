@@ -1562,11 +1562,32 @@ at 110 bpm with a 2-minute countdown timer. No external libraries. Dark theme.</
             </div>
             <div>
               <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--green);margin-bottom:6px;">Advanced prompt</div>
-              <div style="background:var(--code-bg);color:var(--code-text);border-radius:6px;padding:12px 14px;font-family:'Menlo','Consolas',monospace;font-size:12px;line-height:1.6;">"Build a single-file HTML AED simulator for nursing students with 5 steps: Power On, Attach Pads, Analyze Rhythm, Shock Advised, Begin CPR. Include a 2-minute CPR countdown at 110 bpm, voice prompts via Web Speech API, visual feedback at each step, and a dark medical device aesthetic. No external libraries. Must work offline."</div>
-              <div style="margin-top:8px;background:var(--green-light);border-left:3px solid var(--green);padding:10px 12px;border-radius:0 6px 6px 0;font-size:12px;line-height:1.6;">This is the prompt that built the AED simulator in Lesson 2 — specific steps, specific features, specific constraints. One prompt, working tool.</div>
+              <div style="background:var(--code-bg);color:var(--code-text);border-radius:6px;padding:12px 14px;font-family:'Menlo','Consolas',monospace;font-size:12px;line-height:1.6;white-space:pre-wrap;">Build a single-file HTML AED simulator for nursing students.
+
+STEPS (in order):
+1. Power On — learner taps "Power On," device powers up
+2. Attach Pads — show placement diagram (right chest, left side), confirm with button
+3. Analyze Rhythm — 3-second animation, "Stand clear" voice prompt, no user action
+4. Shock Advised — flashing orange shock button, countdown voice warning
+5. Begin CPR — 2-minute timer at 110 bpm, visual compress/release indicator
+
+VOICE PROMPTS (Web Speech API):
+- Step 2: "Attach pads to the patient's bare chest as shown."
+- Step 3: "Stand clear. Analyzing rhythm."
+- Step 4: "Shock advised. Stand clear. Press the orange shock button."
+- Step 5: "Shock delivered. Begin CPR. Push hard and fast."
+
+VISUAL DESIGN:
+- Dark background, orange accent (#FF6B00), medical device aesthetic
+- Progress dots at top showing current step
+
+CONSTRAINTS:
+- Single HTML file. No external libraries. No CDN links.
+- Must work offline. Mobile-responsive.</div>
+              <div style="margin-top:8px;background:var(--green-light);border-left:3px solid var(--green);padding:10px 12px;border-radius:0 6px 6px 0;font-size:12px;line-height:1.6;">This is the prompt that built the AED simulator in Lesson 2. More detail means fewer surprises — the AI had nothing left to guess.</div>
             </div>
           </div>
-          <p style="font-size:13px;color:var(--muted);">Start with the beginner template. Add details as you learn what the AI responds to.</p>
+          <p style="font-size:13px;color:var(--muted);">You don't have to write like this on your first try — but this is the target. The 5 templates below give you the structure.</p>
         </div>
 
         <div class="prompt-card">
@@ -2373,6 +2394,20 @@ clean and professional design, mobile-friendly.</pre>
       if (main) main.classList.toggle('scratchpad-collapsed', collapsed);
       btn.textContent = collapsed ? '◀' : '▶';
     };
+    window.clearScratchpad = function() {
+      const ta = document.getElementById('scratchpadText');
+      if (!ta) return;
+      if (ta.value.trim() === '' || confirm('Clear all notes?')) {
+        ta.value = '';
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    };
+    window.selectAllScratchpad = function() {
+      const ta = document.getElementById('scratchpadText');
+      if (!ta) return;
+      ta.focus();
+      ta.select();
+    };
     window.loadPlanningTemplate = function() {
       const ta = document.getElementById('scratchpadText');
       if (!ta) return;
@@ -2394,6 +2429,10 @@ clean and professional design, mobile-friendly.</pre>
     </div>
     <div class="scratchpad-body">
       <button class="scratchpad-btn" onclick="loadPlanningTemplate()">Load Planning Template</button>
+      <div style="display:flex;gap:6px;">
+        <button class="scratchpad-btn" style="flex:1;" onclick="selectAllScratchpad()">Select All</button>
+        <button class="scratchpad-btn" style="flex:1;" onclick="clearScratchpad()">Clear</button>
+      </div>
       <textarea id="scratchpadText" placeholder="Jot down your scenario, prompt drafts, or anything you want to remember..."></textarea>
       <div class="scratchpad-hint">Auto-saved in your browser</div>
     </div>
