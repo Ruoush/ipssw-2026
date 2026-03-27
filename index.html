@@ -1251,6 +1251,7 @@
 
         <div class="content-card">
           <h3>The Core Idea</h3>
+          <p>In this workshop, you'll use Claude, ChatGPT, or Gemini as a coding partner. You describe what you want — it writes the code. No coding knowledge required.</p>
           <p>High-fidelity simulation tools — mannequins, moulage, task trainers — are expensive and require lead time. <strong>Just in Time Fidelity</strong> is the practice of creating purpose-built, scenario-specific tools quickly and cheaply, exactly when they're needed.</p>
           <p>Agentic AI tools can now generate working HTML web apps in seconds. A browser is all learners need to run them. This unlocks a new category of simulation support: lightweight, interactive, instantly deployable digital tools.</p>
           <p>This isn't a replacement for high-fidelity simulation — it's a complement. A quick custom tool built for <em>your</em> scenario, for <em>your</em> learners, in the time it takes to write a paragraph.</p>
@@ -1590,6 +1591,8 @@ CONSTRAINTS:
           <p style="font-size:13px;color:var(--muted);">You don't have to write like this on your first try — but this is the target. The 5 templates below give you the structure.</p>
         </div>
 
+        <p style="font-size:13px;color:var(--muted);margin-bottom:16px;"><strong>Quick guide:</strong> Building something new? Start with Template 1. Output is mostly right but needs tweaks? Template 2. Want to add one thing? Template 3. Something broke? Template 4. Just curious about the code? Template 5.</p>
+
         <div class="prompt-card">
           <div class="prompt-card-header">
             <div class="prompt-number">1</div>
@@ -1707,8 +1710,6 @@ Keep it simple and self-contained as a single HTML file.</textarea>
           </div>
         </div>
 
-        <hr style="border:none;border-top:1px solid var(--border);margin:24px 0 8px;">
-        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:16px;">Going Deeper</p>
 
         <div class="content-card">
           <h3>Understanding the Context Window</h3>
@@ -1805,8 +1806,8 @@ Keep it simple and self-contained as a single HTML file.</textarea>
             <li class="activity-step">
               <div class="step-num">1</div>
               <div class="step-content">
-                <strong>Pick a scenario (3 min)</strong>
-                <p>Choose a clinical scenario from your own program — or pick one below. It should be something you'd actually use.</p>
+                <strong>Start with your scenario (2 min)</strong>
+                <p>You drafted a prompt in Lesson 3 — pull it up now (check your scratchpad or AI tool). If it's solid, use it as your starting point. If you'd rather try something different, pick a scenario below.</p>
                 <div class="idea-grid" style="margin-top:10px;">
                   <div class="idea-chip"><span class="chip-icon">🫁</span>Chest tube insertion checklist</div>
                   <div class="idea-chip"><span class="chip-icon">💊</span>Medication dosage calculator</div>
@@ -1868,6 +1869,14 @@ Requirements: works offline, opens in any browser, no external libraries.</texta
               <div class="step-content">
                 <strong>Iterate (15 min)</strong>
                 <p>Use Templates 2 or 3 to improve your tool. Add a feature, change the design, fix something. Aim for at least 2 rounds.</p>
+                <div style="margin-top:10px;background:var(--bg);border-radius:6px;padding:10px 14px;font-size:13px;">
+                  <strong>You're done when:</strong>
+                  <ul style="margin:6px 0 0 18px;line-height:1.9;">
+                    <li>The file opens in a browser without a blank page or error</li>
+                    <li>The main feature works end-to-end</li>
+                    <li>A learner could pick it up and complete the scenario</li>
+                  </ul>
+                </div>
                 <p style="font-size:13px;color:var(--muted);margin-top:6px;"><strong>Before each round:</strong> save a copy of your current file with a new name (e.g., <code>my-tool-v2.html</code>). If the AI makes things worse, you can always go back to the previous version.</p>
               </div>
             </li>
