@@ -1084,6 +1084,34 @@
             <div class="glossary-def">A standardized way for software to communicate with other software. When an HTML tool plays a voice prompt, it's using the browser's Web Speech API. You don't need to use APIs directly — the AI handles that in the generated code.</div>
           </div>
           <div class="glossary-item">
+            <div class="glossary-term">API key</div>
+            <div class="glossary-def">A unique credential — a long string of characters — that proves your identity when connecting to an AI service programmatically. Needed when building applications that call AI directly through code. Not required when using browser-based AI tools like claude.ai or chatgpt.com.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">ASI (Artificial Superintelligence)</div>
+            <div class="glossary-def">A hypothetical future form of AI that surpasses human intelligence across all domains. Currently theoretical — no ASI exists. Distinct from today's AI tools, which are highly capable at specific tasks but do not generalize beyond human-level performance.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">Back end</div>
+            <div class="glossary-def">The server-side portion of an application — handles data storage, user authentication, and business logic. The tools built in this course have no back end; all logic runs in the browser. If you need to save learner progress across sessions or manage accounts, a back end would be required.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">Bash command</div>
+            <div class="glossary-def">An instruction typed into a terminal on Mac or Linux. Bash is the language the terminal understands. Common commands: <code>cd</code> (change directory), <code>ls</code> (list files), <code>git push</code> (upload to GitHub). Not required for this workshop's single-file HTML approach.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">Claude</div>
+            <div class="glossary-def">An AI assistant made by Anthropic, designed to be helpful, harmless, and honest. The primary tool recommended in this course for generating HTML simulation tools. Available at claude.ai — free tier available, with more powerful models on Claude Pro ($20/mo).</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">Claude Code</div>
+            <div class="glossary-def">An agentic AI tool built by Anthropic that runs directly in your terminal or code editor. Unlike the browser interface, Claude Code can read files, run commands, and make changes across your entire project automatically. More powerful for multi-file projects and rapid iteration. Requires Claude Pro.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">Codex</div>
+            <div class="glossary-def">An AI model from OpenAI specialized in understanding and generating code. Powers tools like GitHub Copilot. Similar function to Claude Code — provides AI-assisted coding within development environments rather than through a browser chat interface.</div>
+          </div>
+          <div class="glossary-item">
             <div class="glossary-term">Context window</div>
             <div class="glossary-def">The total amount of text an AI can "hold in mind" during a conversation — your messages, its responses, and any code you paste all count toward this limit. When it fills up, AI performance degrades. Think of it like a whiteboard with limited space.</div>
           </div>
@@ -1092,44 +1120,92 @@
             <div class="glossary-def">The part of an HTML file that controls appearance — colors, fonts, layout, and animations. You won't write CSS directly; the AI generates it as part of your simulation tool.</div>
           </div>
           <div class="glossary-item">
+            <div class="glossary-term">Front end</div>
+            <div class="glossary-def">The part of a software application that users see and interact with — buttons, layouts, animations, and forms. Everything in your HTML simulation tools is front end. No server required.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">GitHub</div>
+            <div class="glossary-def">A web-based platform for storing, sharing, and managing code files. Think of it as Google Drive for code — with complete version history and the ability to share projects publicly or privately. Used in Lesson 7 to host your simulation tools before deploying with Vercel.</div>
+          </div>
+          <div class="glossary-item">
             <div class="glossary-term">Hallucination</div>
-            <div class="glossary-def">When an AI confidently states something incorrect. Common with specific facts, dates, or citations; less common with code generation tasks where correctness is easier to verify.</div>
+            <div class="glossary-def">When an AI confidently states something incorrect. Common with specific facts, dates, or citations — and a real risk in clinical content. Always verify drug doses, procedural steps, and guidelines in AI-generated tools before using them for training.</div>
           </div>
           <div class="glossary-item">
             <div class="glossary-term">HTML (HyperText Markup Language)</div>
             <div class="glossary-def">The language all websites are built with. An HTML file is a text file your browser knows how to display. No server, no app store, no installation needed — open the file and it works.</div>
           </div>
           <div class="glossary-item">
+            <div class="glossary-term">JSON (JavaScript Object Notation)</div>
+            <div class="glossary-def">A lightweight text format for storing and exchanging structured data. Looks like nested key-value pairs: <code>{"name": "value"}</code>. Commonly used in configuration files and API responses. You may encounter JSON files in more advanced projects or when connecting AI tools to external services.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">Large Reasoning Model (LRM)</div>
+            <div class="glossary-def">A class of AI model trained to think through problems step by step before responding — sometimes called "extended thinking" or chain-of-thought reasoning. Better than standard models at complex logic and multi-step problems. Examples include OpenAI o1 and Claude with extended thinking enabled.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">Markdown file (.md)</div>
+            <div class="glossary-def">A plain-text file format that uses simple symbols to indicate formatting — e.g., <code>**bold**</code>, <code># Heading</code>. Widely used for documentation and README files on GitHub. The CLAUDE.md file in this project is a Markdown file.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">MCP (Model Context Protocol)</div>
+            <div class="glossary-def">A standard that lets AI tools like Claude connect to external services — databases, apps, files, APIs — during a conversation. Think of it as a plugin system that extends what AI can access and do without you manually copying and pasting information. Used in advanced agentic AI workflows.</div>
+          </div>
+          <div class="glossary-item">
             <div class="glossary-term">Model</div>
-            <div class="glossary-def">The specific version of AI being used (e.g., Claude Sonnet, GPT-4o). Different models have different strengths, speeds, and context window sizes. Free tiers typically give access to capable but not the latest models.</div>
+            <div class="glossary-def">The specific version of AI being used (e.g., Claude Sonnet, GPT-4o). Different models have different strengths, speeds, and context window sizes. Free tiers typically provide capable but not the most current models.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">MoE (Mixture of Experts)</div>
+            <div class="glossary-def">An AI architecture where different specialized sub-networks ("experts") handle different types of inputs, with a routing system selecting which experts to use for each query. Allows larger, more capable models without proportionally increasing computing costs. Used in GPT-4 and some versions of Gemini.</div>
           </div>
           <div class="glossary-item">
             <div class="glossary-term">Prompt</div>
             <div class="glossary-def">The instruction or question you type to an AI. The quality of the output depends heavily on the quality of your prompt — which is why this course teaches prompt templates.</div>
           </div>
           <div class="glossary-item">
+            <div class="glossary-term">RAG (Retrieval-Augmented Generation)</div>
+            <div class="glossary-def">A technique that improves AI responses by first searching a database of documents for relevant information, then using that context to generate an answer. Used in AI systems that need access to up-to-date or domain-specific knowledge beyond what the model was trained on — for example, an AI that can search your institution's policies before responding.</div>
+          </div>
+          <div class="glossary-item">
             <div class="glossary-term">Single-file HTML</div>
-            <div class="glossary-def">An HTML document that contains all its own CSS (Cascading Style Sheets) and JavaScript, requiring no external files, internet connection, or server to run. Open the file — it works. This is the format all tools in this course use.</div>
+            <div class="glossary-def">An HTML document that contains all its own CSS and JavaScript, requiring no external files, internet connection, or server to run. Open the file — it works. This is the format all tools in this course use.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">Skill</div>
+            <div class="glossary-def">In Claude Code, a pre-built reusable prompt or action that can be triggered with a slash command (e.g., <code>/commit</code>). Skills extend what Claude Code can do beyond its defaults. Not relevant to the browser-based AI workflow used in this course, but useful if you move to Claude Code later.</div>
           </div>
           <div class="glossary-item">
             <div class="glossary-term">State machine</div>
-            <div class="glossary-def">A programming pattern where a system moves through defined steps in a fixed order. The AED (Automated External Defibrillator) simulator uses one: Power On → Attach Pads → Analyze → Shock → CPR.</div>
+            <div class="glossary-def">A programming pattern where a system moves through defined steps in a fixed order. The AED simulator uses one: Power On → Attach Pads → Analyze → Shock → CPR. Well-suited to simulation tools that follow a clinical protocol.</div>
           </div>
           <div class="glossary-item">
             <div class="glossary-term">Temperature</div>
-            <div class="glossary-def">An AI setting controlling how creative vs. precise the responses are. Low temperature = consistent output. High = more varied. Most agentic AI tools set a reasonable default — you don't need to adjust this.</div>
+            <div class="glossary-def">An AI setting controlling how creative vs. precise the responses are. Low temperature = consistent, predictable output. High = more varied and creative. Most agentic AI tools set a reasonable default — you don't need to adjust this.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">Terminal</div>
+            <div class="glossary-def">A text-based interface for sending commands directly to your computer's operating system. Instead of clicking icons, you type instructions. Required for running local servers, using Claude Code, or managing files at scale. Not needed for this workshop's single-file HTML approach.</div>
           </div>
           <div class="glossary-item">
             <div class="glossary-term">Token</div>
             <div class="glossary-def">The basic unit AI models process — roughly ¾ of a word. Context windows are measured in tokens (e.g., 200,000 tokens ≈ ~150,000 words). Pasting a large HTML file into a chat consumes many tokens.</div>
           </div>
           <div class="glossary-item">
+            <div class="glossary-term">Vector database</div>
+            <div class="glossary-def">A type of database that stores data as numerical vectors — lists of numbers representing meaning — to enable fast similarity searches. Used in RAG systems to find relevant documents quickly. Not needed for the tools built in this course, but relevant in advanced AI application development.</div>
+          </div>
+          <div class="glossary-item">
+            <div class="glossary-term">Vercel</div>
+            <div class="glossary-def">A free hosting platform that automatically deploys web files from a GitHub repository. Connect your repo, click Deploy, and Vercel gives your tool a live public URL — usually within 30 seconds. Used in Lesson 7. Updates automatically whenever you push a new file to GitHub.</div>
+          </div>
+          <div class="glossary-item">
             <div class="glossary-term">Vibe coding</div>
-            <div class="glossary-def">Describing what you want in natural language and letting AI write the code, without writing code yourself. You are the domain expert; the AI handles the syntax.</div>
+            <div class="glossary-def">Describing what you want in natural language and letting AI write the code, without writing code yourself. You are the domain expert; the AI handles the syntax. The entire workflow in this course is vibe coding.</div>
           </div>
           <div class="glossary-item">
             <div class="glossary-term">Web Speech API</div>
-            <div class="glossary-def">A browser-native feature (API) that converts text to spoken audio. Used in the AED simulator for voice prompts — no external library needed, no internet required after the file is opened.</div>
+            <div class="glossary-def">A browser-native feature that converts text to spoken audio. Used in the AED simulator for voice prompts — no external library needed, no internet required after the file is opened.</div>
           </div>
         </div>
 
