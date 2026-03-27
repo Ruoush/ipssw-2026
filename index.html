@@ -1183,9 +1183,17 @@
             <li><strong>Specificity:</strong> Purpose-built for your scenario, your learners, your objectives.</li>
             <li><strong>Iteration:</strong> Didn't get it right? Ask AI to change it. Get the full updated file. Test again.</li>
           </ul>
-          <div class="callout" style="margin-top:14px; border-left: 4px solid var(--red); background: var(--red-light); margin-bottom:0;">
+          <div class="callout" style="margin-top:14px; border-left: 4px solid var(--red); background: var(--red-light); margin-bottom:8px;">
             <span class="callout-icon">⚠️</span>
             <div><strong>Caution — Check your institution's IT policies</strong> before deploying AI-generated tools on clinical networks, shared devices, or in patient-facing environments. Most institutions have policies around custom software and web-based tools — a quick conversation with your IT or education team before the workshop can save headaches later.</div>
+          </div>
+          <div class="callout" style="border-left: 4px solid var(--red); background: var(--red-light); margin-bottom:8px;">
+            <span class="callout-icon">⚠️</span>
+            <div><strong>You are responsible for clinical accuracy.</strong> AI will generate plausible-sounding content confidently — including drug doses, procedural steps, and clinical values. Always verify that the content in your tool reflects current guidelines and is appropriate for your learners before using it for training.</div>
+          </div>
+          <div class="callout" style="border-left: 4px solid var(--green); background: var(--green-light); margin-bottom:0;">
+            <span class="callout-icon">🔒</span>
+            <div><strong>No data is collected.</strong> These tools run entirely in your browser — nothing is sent to a server, nothing is stored, no learner information is recorded. They are safe to use in clinical education environments from a data privacy standpoint.</div>
           </div>
         </div>
 
@@ -1750,6 +1758,7 @@ Requirements: works offline, opens in any browser, no external libraries.</texta
                 <strong>Open it in a browser (2 min)</strong>
                 <p>Double-click the file, or drag it into your web browser. If it doesn't work, jump to Lesson 8.</p>
                 <p style="font-size:13px;color:var(--muted);margin-top:4px;">For tools with voice features, Chrome or Edge work best. Safari may require an extra tap before audio plays.</p>
+                <p style="font-size:13px;color:var(--muted);margin-top:4px;"><strong>Testing on tablet or phone:</strong> If your tool will be used on bedside tablets, email the file to yourself, open it on the device, and tap through it. AI-generated tools are generally mobile-responsive but it's worth checking before deployment.</p>
               </div>
             </li>
             <li class="activity-step">
@@ -1757,6 +1766,7 @@ Requirements: works offline, opens in any browser, no external libraries.</texta
               <div class="step-content">
                 <strong>Iterate (15 min)</strong>
                 <p>Use Templates 2 or 3 to improve your tool. Add a feature, change the design, fix something. Aim for at least 2 rounds.</p>
+                <p style="font-size:13px;color:var(--muted);margin-top:6px;"><strong>Before each round:</strong> save a copy of your current file with a new name (e.g., <code>my-tool-v2.html</code>). If the AI makes things worse, you can always go back to the previous version.</p>
               </div>
             </li>
           </ul>
@@ -1768,6 +1778,8 @@ Requirements: works offline, opens in any browser, no external libraries.</texta
             <li><strong>File opens blank:</strong> Check that you saved as <code>.html</code> not <code>.html.txt</code>. See Lesson 8.</li>
             <li><strong>AI gave a snippet, not a full file:</strong> Ask "Can you give me the complete HTML file starting with &lt;!DOCTYPE html&gt;?"</li>
             <li><strong>AI stopped halfway:</strong> Type "Continue" or "Please complete the rest of the file."</li>
+            <li><strong>Iteration made things worse:</strong> Go back to your saved copy (you did save one, right?). If you didn't, paste your broken code and say "Here is my current file. Please restore it to working order, then make only this one change: [describe the change]."</li>
+            <li><strong>Stuck after 3 failed attempts on the same issue:</strong> Start a new AI conversation. Paste your last working version of the code fresh, and describe only the one thing you want fixed.</li>
           </ul>
         </div>
 
@@ -2276,7 +2288,7 @@ clean and professional design, mobile-friendly.</pre>
       const el = document.getElementById('scratchpad');
       const btn = document.getElementById('scratchpadToggle');
       const collapsed = el.classList.toggle('collapsed');
-      btn.textContent = collapsed ? '▶' : '◀';
+      btn.textContent = collapsed ? '◀' : '▶';
     };
     window.loadPlanningTemplate = function() {
       const ta = document.getElementById('scratchpadText');
@@ -2293,9 +2305,9 @@ clean and professional design, mobile-friendly.</pre>
 
   <div class="scratchpad" id="scratchpad">
     <div class="scratchpad-header">
+      <button class="scratchpad-toggle" id="scratchpadToggle" onclick="toggleScratchpad()">▶</button>
       <span style="font-size:15px;">📝</span>
       <span class="scratchpad-title">My Notes</span>
-      <button class="scratchpad-toggle" id="scratchpadToggle" onclick="toggleScratchpad()">◀</button>
     </div>
     <div class="scratchpad-body">
       <button class="scratchpad-btn" onclick="loadPlanningTemplate()">Load Planning Template</button>
