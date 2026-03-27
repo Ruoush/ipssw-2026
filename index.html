@@ -217,10 +217,13 @@
     .main {
       flex: 1;
       margin-left: var(--sidebar-w);
+      margin-right: 280px;
       min-width: 0;
+      transition: margin-right 0.25s;
     }
+    .main.scratchpad-collapsed { margin-right: 32px; }
     .lesson-area {
-      max-width: 720px;
+      max-width: 860px;
       padding: 36px 32px 80px;
     }
 
@@ -724,25 +727,26 @@
 
     /* Scratchpad panel */
     .scratchpad {
-      position: fixed; right: 0; top: 50%; transform: translateY(-50%);
-      width: 280px; background: var(--surface); border: 1px solid var(--border);
-      border-radius: 10px 0 0 10px; box-shadow: -4px 0 16px rgba(0,0,0,0.12);
-      z-index: 180; transition: transform 0.25s; display: flex; flex-direction: column;
+      position: fixed; right: 0; top: 52px; bottom: 0;
+      width: 280px; background: var(--surface); border-left: 1px solid var(--border);
+      z-index: 180; transition: width 0.25s; display: flex; flex-direction: column;
+      overflow: hidden;
     }
-    .scratchpad.collapsed { transform: translateY(-50%) translateX(248px); }
+    .scratchpad.collapsed { width: 32px; }
     .scratchpad-header {
       display: flex; align-items: center; gap: 8px;
       padding: 10px 12px; border-bottom: 1px solid var(--border);
-      background: var(--purple); color: white; border-radius: 9px 0 0 0;
+      background: var(--purple); color: white;
+      flex-shrink: 0; white-space: nowrap; overflow: hidden;
     }
     .scratchpad-title { font-size: 13px; font-weight: 700; flex: 1; }
     .scratchpad-toggle {
       background: rgba(255,255,255,0.2); border: none; color: white;
       border-radius: 4px; padding: 3px 8px; font-size: 11px; cursor: pointer; font-weight: 700;
     }
-    .scratchpad-body { padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+    .scratchpad-body { padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; flex: 1; overflow-y: auto; min-width: 256px; }
     .scratchpad textarea {
-      width: 100%; height: 220px; background: var(--bg); color: var(--text);
+      width: 100%; flex: 1; min-height: 120px; background: var(--bg); color: var(--text);
       border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px;
       font-size: 12px; line-height: 1.6; resize: none; outline: none;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -757,6 +761,7 @@
     .scratchpad-hint { font-size: 10px; color: var(--muted); text-align: center; }
     @media (max-width: 768px) {
       .scratchpad { display: none; }
+      .main { margin-right: 0 !important; }
     }
   </style>
 </head>
@@ -2363,7 +2368,9 @@ clean and professional design, mobile-friendly.</pre>
     window.toggleScratchpad = function() {
       const el = document.getElementById('scratchpad');
       const btn = document.getElementById('scratchpadToggle');
+      const main = document.querySelector('.main');
       const collapsed = el.classList.toggle('collapsed');
+      if (main) main.classList.toggle('scratchpad-collapsed', collapsed);
       btn.textContent = collapsed ? '◀' : '▶';
     };
     window.loadPlanningTemplate = function() {
