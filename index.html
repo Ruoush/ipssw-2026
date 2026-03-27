@@ -721,6 +721,43 @@
       .loop-arrow { display: none; }
       .loop-step { min-width: calc(50% - 12px); }
     }
+
+    /* Scratchpad panel */
+    .scratchpad {
+      position: fixed; right: 0; top: 50%; transform: translateY(-50%);
+      width: 280px; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px 0 0 10px; box-shadow: -4px 0 16px rgba(0,0,0,0.12);
+      z-index: 180; transition: transform 0.25s; display: flex; flex-direction: column;
+    }
+    .scratchpad.collapsed { transform: translateY(-50%) translateX(248px); }
+    .scratchpad-header {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 12px; border-bottom: 1px solid var(--border);
+      background: var(--purple); color: white; border-radius: 9px 0 0 0;
+    }
+    .scratchpad-title { font-size: 13px; font-weight: 700; flex: 1; }
+    .scratchpad-toggle {
+      background: rgba(255,255,255,0.2); border: none; color: white;
+      border-radius: 4px; padding: 3px 8px; font-size: 11px; cursor: pointer; font-weight: 700;
+    }
+    .scratchpad-body { padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+    .scratchpad textarea {
+      width: 100%; height: 220px; background: var(--bg); color: var(--text);
+      border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px;
+      font-size: 12px; line-height: 1.6; resize: none; outline: none;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      box-sizing: border-box;
+    }
+    .scratchpad-btn {
+      background: var(--purple-light); border: 1px solid var(--purple);
+      color: var(--purple); border-radius: 5px; padding: 6px 10px;
+      font-size: 11px; font-weight: 700; cursor: pointer; text-align: center;
+    }
+    .scratchpad-btn:hover { background: var(--purple); color: white; }
+    .scratchpad-hint { font-size: 10px; color: var(--muted); text-align: center; }
+    @media (max-width: 768px) {
+      .scratchpad { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -846,7 +883,7 @@
         </div>
 
         <div class="content-card">
-          <h3>2. Install a Code Editor</h3>
+          <h3>2. Install a Code Editor <em style="font-size:12px;font-weight:400;color:var(--muted);">(optional — required to save and open files)</em></h3>
           <p>You'll paste AI output into a file and save it as <code>.html</code>. A code editor reduces the chance of accidentally breaking the file. Once saved, open your HTML file by double-clicking it — it will open in your default browser.</p>
           <div class="option-row">
             <div class="option-icon">⚡</div>
@@ -979,6 +1016,9 @@
         <div class="content-card">
           <h3>3. Terminal Access <em style="font-size:12px;font-weight:400;color:var(--muted);">(optional)</em></h3>
           <p>A terminal lets you type commands to control your computer. <strong>You don't need it for this workshop</strong> — everything can be done by double-clicking files and using the menus in your code editor. It's included here as a reference for those who want it.</p>
+          <ul style="margin:10px 0 10px 18px;font-size:13px;line-height:1.8;">
+            <li>If your file structure ever grows beyond a single HTML file (e.g., you add images or separate CSS), a terminal will be required to run a local server. For this workshop, a single HTML file is all you need.</li>
+          </ul>
           <details class="terminal-optional">
             <summary>Show terminal instructions — Mac &amp; Windows</summary>
             <div class="terminal-content">
@@ -1143,7 +1183,7 @@
             <li><strong>Specificity:</strong> Purpose-built for your scenario, your learners, your objectives.</li>
             <li><strong>Iteration:</strong> Didn't get it right? Ask AI to change it. Get the full updated file. Test again.</li>
           </ul>
-          <div class="callout" style="margin-top:14px; border-left: 4px solid var(--amber); background: var(--amber-light); margin-bottom:0;">
+          <div class="callout" style="margin-top:14px; border-left: 4px solid var(--red); background: var(--red-light); margin-bottom:0;">
             <span class="callout-icon">⚠️</span>
             <div><strong>Caution — Check your institution's IT policies</strong> before deploying AI-generated tools on clinical networks, shared devices, or in patient-facing environments. Most institutions have policies around custom software and web-based tools — a quick conversation with your IT or education team before the workshop can save headaches later.</div>
           </div>
@@ -1188,10 +1228,10 @@
           <p>HTML is the lowest-friction path from "I have an idea" to "this is running on someone's screen."</p>
         </div>
 
-        <div class="content-card card-blue">
+        <div class="content-card card-purple">
           <h3 class="card-title">Your Turn — Capture Your Scenario</h3>
           <p style="margin-bottom:14px;">Before you move on, pick one scenario from your program. It doesn't need to be perfect.</p>
-          <div style="border-left:3px solid var(--blue);padding-left:14px;margin-bottom:16px;">
+          <div style="border-left:3px solid var(--purple);padding-left:14px;margin-bottom:16px;">
             <p style="margin-bottom:8px;line-height:1.8;">1. <strong>Who are the learners?</strong> <em>(nursing students, paramedics, residents…)</em></p>
             <p style="margin-bottom:8px;line-height:1.8;">2. <strong>What do they need to practice?</strong></p>
             <p style="line-height:1.8;">3. <strong>What does "done well" look like for them?</strong></p>
@@ -1258,6 +1298,7 @@
           <h3>Before You Build, See What's Possible</h3>
           <p>The AED simulator in this folder was generated with a single AI prompt. It includes voice prompts, animations, a CPR metronome, and a countdown timer — all in one file, no internet required after opening.</p>
           <p>Open <code>aed-app.html</code> from the same folder in your browser. No login, no installation — just double-click the file, or drag it into Chrome, Edge, or Firefox.</p>
+          <p style="margin-top:10px;"><a href="https://ipssw-2026.vercel.app/aed-app.html" target="_blank" style="color:var(--blue);font-weight:700;">Open the AED Simulator →</a></p>
         </div>
 
         <div class="content-card">
@@ -1318,7 +1359,7 @@
         <div class="content-card">
           <h3>The Prompt That Built It</h3>
           <p>This is the type of prompt that starts a tool like this. The AED simulator in this course was refined through several rounds of iteration — but a prompt like this is how it began.</p>
-          <p style="background:var(--blue-light);border-left:3px solid var(--blue);padding:10px 14px;border-radius:0 6px 6px 0;margin-bottom:14px;font-size:14px;"><strong>Before you see it —</strong> how would <em>you</em> describe the AED simulator to an AI? Take 60 seconds and think: what would you include? What might you leave out?</p>
+          <p style="background:var(--purple-light);border-left:3px solid var(--purple);padding:10px 14px;border-radius:0 6px 6px 0;margin-bottom:14px;font-size:14px;"><strong>Before you see it —</strong> how would <em>you</em> describe the AED simulator to an AI? Take 60 seconds and think: what would you include? What might you leave out?</p>
           <details class="editor-guide">
             <summary>See the prompt that started it</summary>
             <pre class="code-block">Create a single-file HTML AED simulator for medical simulation training.
@@ -1419,19 +1460,24 @@ at 110 bpm with a 2-minute countdown timer. No external libraries. Dark theme.</
         <div class="content-card">
           <h3 class="card-title">What a Difference a Prompt Makes</h3>
           <p style="margin-bottom:16px;">Same AI, same task — different results based on how the request was written.</p>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
             <div>
               <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--red);margin-bottom:6px;">Vague prompt</div>
-              <div style="background:var(--code-bg);color:var(--code-text);border-radius:6px;padding:12px 14px;font-family:'Menlo','Consolas',monospace;font-size:12px;line-height:1.6;">"Make me a sepsis simulation."</div>
-              <div style="margin-top:8px;background:var(--red-light);border-left:3px solid var(--red);padding:10px 12px;border-radius:0 6px 6px 0;font-size:12px;line-height:1.6;">You'll get something generic — probably a basic quiz with yes/no questions and no clinical context. It might technically be about sepsis, but it won't reflect your learners or your program.</div>
+              <div style="background:var(--code-bg);color:var(--code-text);border-radius:6px;padding:12px 14px;font-family:'Menlo','Consolas',monospace;font-size:12px;line-height:1.6;">"Make me an AED simulation."</div>
+              <div style="margin-top:8px;background:var(--red-light);border-left:3px solid var(--red);padding:10px 12px;border-radius:0 6px 6px 0;font-size:12px;line-height:1.6;">Generic output — maybe a basic page with a button. No steps, no voice, no clinical detail. Technically about an AED, but not useful for training.</div>
             </div>
             <div>
-              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--green);margin-bottom:6px;">Specific prompt</div>
-              <div style="background:var(--code-bg);color:var(--code-text);border-radius:6px;padding:12px 14px;font-family:'Menlo','Consolas',monospace;font-size:12px;line-height:1.6;">"Build a single-file HTML sepsis recognition tool for third-year nursing students. Learners are presented with a patient case (temp 38.9°C, HR 112, RR 22, suspected UTI) and must identify two SIRS criteria and select the correct escalation action from four options. Include a 90-second decision timer and show correct/incorrect feedback."</div>
-              <div style="margin-top:8px;background:var(--green-light);border-left:3px solid var(--green);padding:10px 12px;border-radius:0 6px 6px 0;font-size:12px;line-height:1.6;">You'll get a working, scenario-specific tool with a timer, real clinical values, and meaningful feedback — often on the first try.</div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--amber);margin-bottom:6px;">Beginner prompt</div>
+              <div style="background:var(--code-bg);color:var(--code-text);border-radius:6px;padding:12px 14px;font-family:'Menlo','Consolas',monospace;font-size:12px;line-height:1.6;">"Build a single-file HTML AED simulator for nursing students. Include the main steps of using an AED and show feedback when they complete each step."</div>
+              <div style="margin-top:8px;background:var(--amber-light);border-left:3px solid var(--amber);padding:10px 12px;border-radius:0 6px 6px 0;font-size:12px;line-height:1.6;">A functional step-through tool — but without specifics it may miss a timer, voice prompts, or realistic clinical language.</div>
+            </div>
+            <div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--green);margin-bottom:6px;">Advanced prompt</div>
+              <div style="background:var(--code-bg);color:var(--code-text);border-radius:6px;padding:12px 14px;font-family:'Menlo','Consolas',monospace;font-size:12px;line-height:1.6;">"Build a single-file HTML AED simulator for nursing students with 5 steps: Power On, Attach Pads, Analyze Rhythm, Shock Advised, Begin CPR. Include a 2-minute CPR countdown at 110 bpm, voice prompts via Web Speech API, visual feedback at each step, and a dark medical device aesthetic. No external libraries. Must work offline."</div>
+              <div style="margin-top:8px;background:var(--green-light);border-left:3px solid var(--green);padding:10px 12px;border-radius:0 6px 6px 0;font-size:12px;line-height:1.6;">This is the prompt that built the AED simulator in Lesson 2 — specific steps, specific features, specific constraints. One prompt, working tool.</div>
             </div>
           </div>
-          <p style="font-size:13px;color:var(--muted);">The templates below give you the structure. Your job is to fill in the specifics — that's what makes the output yours.</p>
+          <p style="font-size:13px;color:var(--muted);">Start with the beginner template. Add details as you learn what the AI responds to.</p>
         </div>
 
         <div class="prompt-card">
@@ -1526,7 +1572,7 @@ Focus on: [the part you're curious about, e.g. "how the timer works"]
           </div>
         </div>
 
-        <div class="content-card card-blue">
+        <div class="content-card card-purple">
           <h3 class="card-title">Your Turn — Draft Your First Prompt</h3>
           <p style="margin-bottom:14px;">Take the scenario you identified in Lesson 1 and fill in Template 1 below. Then open your AI tool and send it. Don't aim for a finished tool — you're testing the template.</p>
           <div class="template-editor-wrap">
@@ -1614,15 +1660,6 @@ Keep it simple and self-contained as a single HTML file.</textarea>
         </div>
 
         <div class="content-card">
-          <h3>Already comfortable with the tools? Start here.</h3>
-          <ul class="checklist">
-            <li><span class="check">✓</span> AI account open and ready (Claude, ChatGPT, or Gemini)</li>
-            <li><span class="check">✓</span> Code editor installed (Cursor, VS Code, or a plain text editor)</li>
-            <li><span class="check">✓</span> You've opened <code>aed-app.html</code> at least once so you know what "working" looks like</li>
-          </ul>
-        </div>
-
-        <div class="content-card">
           <h3>Plan Before You Prompt</h3>
           <p>Spend 2 minutes filling this in before opening the AI. Learners who plan first get better results on their first prompt.</p>
           <div class="planning-form">
@@ -1651,7 +1688,7 @@ Keep it simple and self-contained as a single HTML file.</textarea>
 
         <div class="content-card">
           <h3>Step-by-Step Build Activity</h3>
-          <div style="background:var(--blue-light);border-left:3px solid var(--blue);padding:10px 14px;border-radius:0 6px 6px 0;margin-bottom:16px;font-size:13px;">
+          <div style="background:var(--purple-light);border-left:3px solid var(--purple);padding:10px 14px;border-radius:0 6px 6px 0;margin-bottom:16px;font-size:13px;">
             You're about to run <strong>The Build Loop</strong> for real (introduced in Lesson 2): <strong>Prompt → Paste &amp; Save → Open → Iterate.</strong>
           </div>
           <ul class="activity-steps">
@@ -1882,6 +1919,12 @@ Requirements: works offline, opens in any browser, no external libraries.</texta
           </ol>
         </div>
 
+        <div class="completion-card">
+          <h2>You've completed the course.</h2>
+          <p>You now have the tools to build interactive HTML simulation tools using AI — quickly, cheaply, and without writing a line of code.</p>
+          <p>Share setup instructions with future participants: <a href="./pre-work.html" style="color:white;font-weight:700;">pre-work.html</a></p>
+        </div>
+
         <div class="lesson-nav">
           <button class="btn-nav" onclick="showLesson('lesson-7')">← Lesson 7</button>
           <span class="nav-lesson-label">Lesson 8 of 8</span>
@@ -1914,50 +1957,6 @@ Requirements: works offline, opens in any browser, no external libraries.</texta
             <li>Have a take-home starter prompt ready to use</li>
             <li>Know how to share this course with a colleague</li>
           </ul>
-        </div>
-
-        <div class="content-card">
-          <h3>Free AI Tools to Try</h3>
-          <div class="resource-grid">
-            <div class="resource-card">
-              <div class="resource-icon">
-                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="28" height="28" rx="6" fill="#C95B21"/>
-                  <path d="M14 5.5L22 20.5H6L14 5.5Z" fill="white"/>
-                  <path d="M14 12.5L18 20.5H10L14 12.5Z" fill="#C95B21"/>
-                </svg>
-              </div>
-              <div class="resource-name"><a href="https://claude.ai" target="_blank">Claude</a></div>
-              <div class="resource-desc">Excellent for generating clean, complete HTML in one shot. Free tier available.</div>
-            </div>
-            <div class="resource-card">
-              <div class="resource-icon">
-                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="28" height="28" rx="6" fill="#10A37F"/>
-                  <circle cx="14" cy="14" r="6.5" stroke="white" stroke-width="1.5" fill="none"/>
-                  <path d="M11 14C11 11.8 12.8 10 15 10" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-                  <path d="M17 14C17 16.2 15.2 18 13 18" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-                </svg>
-              </div>
-              <div class="resource-name"><a href="https://chat.openai.com" target="_blank">ChatGPT</a></div>
-              <div class="resource-desc">Widely used, good for HTML generation. Free tier available.</div>
-            </div>
-            <div class="resource-card">
-              <div class="resource-icon">
-                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="28" height="28" rx="6" fill="#4285F4"/>
-                  <path d="M14 5L15.7 12.3L23 14L15.7 15.7L14 23L12.3 15.7L5 14L12.3 12.3Z" fill="white"/>
-                </svg>
-              </div>
-              <div class="resource-name"><a href="https://gemini.google.com" target="_blank">Gemini</a></div>
-              <div class="resource-desc">Google's AI assistant. Integrates with Google Workspace. Free to use.</div>
-            </div>
-            <div class="resource-card">
-              <div class="resource-icon">🌐</div>
-              <div class="resource-name">Any browser</div>
-              <div class="resource-desc">Chrome, Edge, Firefox, or Safari. All can open HTML files directly — no server needed.</div>
-            </div>
-          </div>
         </div>
 
         <div class="content-card">
@@ -1995,7 +1994,7 @@ clean and professional design, mobile-friendly.</pre>
           <ul>
             <li><strong>More complex layouts and interactivity</strong> — ask AI to add multiple screens, user inputs, or data storage using <code>localStorage</code> (built into every browser, no server needed)</li>
             <li><strong>Claude Code / GitHub Copilot</strong> — AI tools that work directly inside your code editor for larger projects with multiple files</li>
-            <li><strong>GitHub + Vercel</strong> — covered in Lesson 7. Free hosting that gives your tools shareable URLs instead of files.</li>
+              <li style="background:var(--purple-light);border-left:3px solid var(--purple);padding:8px 12px;border-radius:0 6px 6px 0;margin:8px 0 8px -18px;list-style:none;"><strong>GitHub + Vercel</strong> — covered in Lesson 7. Free hosting that gives your tools shareable URLs instead of files.</li>
             <li><strong>Frameworks (React, Vue)</strong> — for apps with complex state and multiple users; requires more technical groundwork, but AI can still do most of the work</li>
           </ul>
         </div>
@@ -2009,12 +2008,6 @@ clean and professional design, mobile-friendly.</pre>
         <div class="content-card">
           <h3>Run This Course with Your Team</h3>
           <p>Want to facilitate this for others? Toggle <strong>Facilitator Tips</strong> (header button) on any lesson for instructor-facing guidance on timing, facilitation prompts, and common questions.</p>
-        </div>
-
-        <div class="completion-card">
-          <h2>You've completed the course.</h2>
-          <p>You now have the tools to build interactive HTML simulation tools using AI — quickly, cheaply, and without writing a line of code.</p>
-          <p>Share setup instructions with future participants: <a href="./pre-work.html" style="color:white;font-weight:700;">pre-work.html</a></p>
         </div>
 
         <div class="lesson-nav">
@@ -2046,7 +2039,7 @@ clean and professional design, mobile-friendly.</pre>
           </div>
         </div>
 
-        <div class="content-card card-blue">
+        <div class="content-card card-purple">
           <h3 class="card-title">Learning Objectives</h3>
           <ul class="objectives">
             <li>Upload your HTML tool to a GitHub repository</li>
@@ -2063,7 +2056,7 @@ clean and professional design, mobile-friendly.</pre>
             <li>Auto-updates when you push changes — no need to re-share the file</li>
             <li>One link for your whole department, cohort, or conference</li>
           </ul>
-          <div style="background:var(--blue-light);border-left:3px solid var(--blue);padding:10px 14px;border-radius:0 6px 6px 0;font-size:13px;">
+          <div style="background:var(--purple-light);border-left:3px solid var(--purple);padding:10px 14px;border-radius:0 6px 6px 0;font-size:13px;">
             Once deployed, your tool has a URL like <code>your-project.vercel.app</code>. Share it anywhere — email, QR code, LMS, slide deck.
           </div>
         </div>
@@ -2270,6 +2263,45 @@ clean and professional design, mobile-friendly.</pre>
       setTimeout(() => { btn.textContent = orig; }, 2000);
     });
   }
+
+  (function() {
+    const STORAGE_KEY = 'jitf_scratchpad';
+    function initScratchpad() {
+      const ta = document.getElementById('scratchpadText');
+      if (!ta) return;
+      ta.value = localStorage.getItem(STORAGE_KEY) || '';
+      ta.addEventListener('input', () => localStorage.setItem(STORAGE_KEY, ta.value));
+    }
+    window.toggleScratchpad = function() {
+      const el = document.getElementById('scratchpad');
+      const btn = document.getElementById('scratchpadToggle');
+      const collapsed = el.classList.toggle('collapsed');
+      btn.textContent = collapsed ? '▶' : '◀';
+    };
+    window.loadPlanningTemplate = function() {
+      const ta = document.getElementById('scratchpadText');
+      if (!ta) return;
+      const template = `MY SCENARIO\n───────────\nLearners: \nWhat they practice: \nWhat "done well" looks like: \n\nMY PROMPT DRAFT\n───────────────\nTool type: \nLearner group: \nScenario: \nLearner should be able to:\n  - \n  - \nInclude: \n\nNOTES / ITERATIONS\n──────────────────\n`;
+      if (ta.value.trim() === '' || confirm('Replace notes with planning template?')) {
+        ta.value = template;
+        localStorage.setItem(STORAGE_KEY, template);
+      }
+    };
+    document.addEventListener('DOMContentLoaded', initScratchpad);
+  })();
 </script>
+
+  <div class="scratchpad" id="scratchpad">
+    <div class="scratchpad-header">
+      <span style="font-size:15px;">📝</span>
+      <span class="scratchpad-title">My Notes</span>
+      <button class="scratchpad-toggle" id="scratchpadToggle" onclick="toggleScratchpad()">◀</button>
+    </div>
+    <div class="scratchpad-body">
+      <button class="scratchpad-btn" onclick="loadPlanningTemplate()">Load Planning Template</button>
+      <textarea id="scratchpadText" placeholder="Jot down your scenario, prompt drafts, or anything you want to remember..."></textarea>
+      <div class="scratchpad-hint">Auto-saved in your browser</div>
+    </div>
+  </div>
 </body>
 </html>
