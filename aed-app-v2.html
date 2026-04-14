@@ -163,6 +163,15 @@
     .cpr-bpm { font-size: 11px; color: #3a3a3a; letter-spacing: 1px; text-transform: uppercase; }
     .cpr-status { font-size: 12px; color: #555; min-height: 16px; text-align: center; }
     .cpr-controls { display: flex; gap: 8px; width: 100%; }
+    .cpr-tone-row { display: flex; align-items: center; gap: 6px; width: 100%; }
+    .cpr-tone-label { font-size: 9px; color: #333; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; }
+    .cpr-tone-btn {
+      flex: 1; background: transparent; color: #333; border: 1px solid #1e1e1e;
+      border-radius: 4px; padding: 3px 0; font-size: 10px; font-weight: 700;
+      cursor: pointer; transition: all 0.15s; text-align: center;
+    }
+    .cpr-tone-btn:hover { color: #666; border-color: #444; }
+    .cpr-tone-btn.active { background: #1e2e20; color: #22dd55; border-color: #22dd55; }
 
     /* ── Action Button (screen) ───────────────────────────────── */
     .btn-action {
@@ -368,6 +377,12 @@
         </div>
         <div class="cpr-bpm">110 bpm · AHA guideline</div>
         <div class="cpr-status" id="cprStatus"></div>
+        <div class="cpr-tone-row">
+          <span class="cpr-tone-label">TONE</span>
+          <button class="cpr-tone-btn active" id="toneStandard" onclick="setCprTone('standard')">Standard</button>
+          <button class="cpr-tone-btn" id="toneClinical" onclick="setCprTone('clinical')">Clinical</button>
+          <button class="cpr-tone-btn" id="toneFun" onclick="setCprTone('fun')">Fun</button>
+        </div>
         <div class="cpr-controls">
           <button class="btn-secondary" id="cprStartStop" onclick="toggleCPR()">▶ Start CPR</button>
           <button class="btn-secondary" id="cprResetBtn" onclick="resetCPR()">↺ Reset</button>
@@ -583,8 +598,48 @@
     document.getElementById('cprStartStop').textContent = CONTENT[textLang].cprStart;
     document.getElementById('cprStatus').textContent = CONTENT[textLang].cprPaused;
   }
+  let cprToneMode = 'standard';
+  function setCprTone(mode) {
+    cprToneMode = mode;
+    ['standard','clinical','fun'].forEach(m =>
+      document.getElementById('tone' + m.charAt(0).toUpperCase() + m.slice(1))
+        .classList.toggle('active', m === mode));
+  }
+  function beepClinical() {
+    // Double pip — like a cardiac monitor
+    if (muted) return;
+    try {
+      const ctx = getCtx();
+      [0, 0.09].forEach(offset => {
+        const osc = ctx.createOscillator(), gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'sine'; osc.frequency.value = 1050;
+        gain.gain.setValueAtTime(0, ctx.currentTime + offset);
+        gain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + offset + 0.006);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + offset + 0.07);
+        osc.start(ctx.currentTime + offset); osc.stop(ctx.currentTime + offset + 0.08);
+      });
+    } catch(e) {}
+  }
+  function beepFun() {
+    // 808-style kick drum — "Stayin' Alive" energy
+    if (muted) return;
+    try {
+      const ctx = getCtx();
+      const osc = ctx.createOscillator(), gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(160, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(38, ctx.currentTime + 0.18);
+      gain.gain.setValueAtTime(0.85, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.25);
+    } catch(e) {}
+  }
   function doBeat() {
-    beep();
+    if (cprToneMode === 'clinical') beepClinical();
+    else if (cprToneMode === 'fun') beepFun();
+    else beep();
     const bar = document.getElementById('cprBar');
     bar.style.transition = 'none'; bar.style.width = '0%';
     void bar.offsetWidth;
