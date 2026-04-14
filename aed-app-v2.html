@@ -708,8 +708,8 @@
       if (i === 2) {
         bar.style.display = 'block';
         fill.style.transition = 'none'; fill.style.width = '0%';
-        setTimeout(() => { fill.style.transition = 'width 4s linear'; fill.style.width = '100%'; }, 30);
-        setTimeout(() => showStep(3), 4300);
+        setTimeout(() => { fill.style.transition = 'width 6.5s linear'; fill.style.width = '100%'; }, 30);
+        setTimeout(() => showStep(3), 7000);
       } else {
         bar.style.display = 'none';
       }
@@ -728,8 +728,9 @@
       // Fade in
       stepScreen.style.opacity = '1';
 
-      // Speak
-      speak(CONTENT[voiceLang].steps[i].voice);
+      // Speak — add extra pause before shock-advised prompt
+      const speakDelay = (i === 3) ? 1500 : 0;
+      setTimeout(() => speak(CONTENT[voiceLang].steps[i].voice), speakDelay);
     }, 180);
   }
 
