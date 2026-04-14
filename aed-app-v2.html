@@ -419,7 +419,7 @@
           btn: 'CONTINUE ›', light: 'yellow' },
         { title: 'ATTACH PADS',
           instruction: 'Place pad one below the right collarbone. Place pad two on the left side of the chest, below the armpit. Connect the cable.',
-          voice: 'Place pad one below the right collarbone. Place pad two on the left side of the chest, below the armpit.',
+          voice: 'Place pad one below the right collarbone. Place pad two on the left side of the chest, below the armpit. Now plug the cable into the AED connector.',
           btn: 'PADS ATTACHED ›', light: 'yellow' },
         { title: 'ANALYZING RHYTHM',
           instruction: 'Everyone stand clear. Do not touch the patient.',
@@ -453,7 +453,7 @@
           btn: 'CONTINUA ›', light: 'yellow' },
         { title: 'APPLICA ELETTRODI',
           instruction: 'Posizionare il primo elettrodo sotto la clavicola destra. Posizionare il secondo sul lato sinistro del torace, sotto il braccio. Collegare il cavo.',
-          voice: 'Posizionare il primo elettrodo sotto la clavicola destra. Posizionare il secondo elettrodo sul lato sinistro del torace, sotto il braccio.',
+          voice: 'Posizionare il primo elettrodo sotto la clavicola destra. Posizionare il secondo elettrodo sul lato sinistro del torace, sotto il braccio. Ora collegare il cavo al connettore del DAE.',
           btn: 'ELETTRODI APPLICATI ›', light: 'yellow' },
         { title: 'ANALISI RITMO',
           instruction: 'Tutti lontani dal paziente. Non toccare il paziente.',
@@ -729,7 +729,7 @@
       stepScreen.style.opacity = '1';
 
       // Speak — add extra pause before shock-advised prompt
-      const speakDelay = (i === 3) ? 1500 : 0;
+      const speakDelay = (i === 3) ? 750 : 0;
       setTimeout(() => speak(CONTENT[voiceLang].steps[i].voice), speakDelay);
     }, 180);
   }
