@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IPSSW AED — Training Simulator</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #1c1a14;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 24px 16px 40px;
+    }
+
+    /* ── Device Shell ─────────────────────────────────────────── */
+    .aed-device {
+      max-width: 420px;
+      width: 100%;
+      background: linear-gradient(165deg, #f7cc10 0%, #e2b500 60%, #c9a000 100%);
+      border-radius: 22px;
+      box-shadow: 0 16px 56px rgba(0,0,0,0.85),
+                  inset 0 1px 0 rgba(255,255,255,0.45),
+                  inset 0 -1px 0 rgba(0,0,0,0.2);
+      border: 2px solid #b08a00;
+      padding: 18px 18px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* ── Device Header ────────────────────────────────────────── */
+    .device-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .device-brand {
+      font-size: 20px; font-weight: 900;
+      letter-spacing: 2px; color: #1a1200;
+      text-transform: uppercase; line-height: 1;
+    }
+    .device-model {
+      font-size: 10px; color: #7a5a00;
+      letter-spacing: 1.5px; text-transform: uppercase; margin-top: 3px;
+    }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    .btn-mute {
+      background: rgba(0,0,0,0.18); border: 1px solid rgba(0,0,0,0.28);
+      color: #2a1c00; border-radius: 6px; padding: 4px 10px;
+      font-size: 13px; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-mute:hover { background: rgba(0,0,0,0.28); }
+    .btn-mute.muted { color: #cc2200; background: rgba(204,34,0,0.18); border-color: rgba(204,34,0,0.4); }
+
+    .status-light {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: #9a7800;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.6);
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+    .status-light.yellow { background: #ff9900; box-shadow: 0 0 10px #ff9900; }
+    .status-light.red    { background: #ee2200; box-shadow: 0 0 12px #ee2200; animation: blink 0.7s infinite; }
+    .status-light.green  { background: #22dd55; box-shadow: 0 0 10px #22dd55; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.15; } }
+
+    /* ── Language Bar ─────────────────────────────────────────── */
+    .lang-bar {
+      display: flex; gap: 14px;
+      padding: 7px 10px;
+      background: rgba(0,0,0,0.14);
+      border-radius: 9px;
+    }
+    .lang-group { display: flex; align-items: center; gap: 4px; }
+    .lang-label {
+      font-size: 9px; font-weight: 700; color: #7a5a00;
+      letter-spacing: 1px; text-transform: uppercase; margin-right: 3px;
+    }
+    .lang-btn {
+      background: rgba(0,0,0,0.12); border: 1px solid rgba(0,0,0,0.22);
+      color: #5a3e00; border-radius: 4px; padding: 2px 8px;
+      font-size: 10px; font-weight: 700; cursor: pointer; transition: all 0.15s;
+    }
+    .lang-btn:hover { background: rgba(0,0,0,0.22); }
+    .lang-btn.active {
+      background: #2a1c00; color: #f7cc10;
+      border-color: #1a0e00; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+    }
+
+    /* ── LCD Screen ───────────────────────────────────────────── */
+    .screen {
+      background: #0a0a08;
+      border: 3px solid #1e1a00;
+      border-radius: 10px;
+      box-shadow: inset 0 4px 16px rgba(0,0,0,0.98), 0 1px 0 rgba(255,220,0,0.08);
+      padding: 18px 16px 16px;
+      display: flex; flex-direction: column; gap: 12px;
+      min-height: 300px; position: relative;
+    }
+
+    /* Step dots */
+    .step-indicator { display: flex; gap: 7px; justify-content: center; }
+    .step-dot { width: 8px; height: 8px; border-radius: 50%; background: #1e1e1e; transition: all 0.3s; }
+    .step-dot.active { background: #e67e00; box-shadow: 0 0 6px #e67e00; }
+    .step-dot.done   { background: #2e2e2e; }
+
+    /* Cable banner */
+    .cable-banner {
+      background: #0a3a15; border: 1px solid #22dd55; border-radius: 6px;
+      padding: 8px 12px; font-size: 13px; font-weight: 700;
+      color: #22dd55; text-align: center;
+      animation: banner-in 0.3s ease;
+    }
+    @keyframes banner-in { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    /* ── Start Screen ─────────────────────────────────────────── */
+    .start-inner {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 14px; flex: 1; text-align: center; padding: 10px 0;
+    }
+    .aed-icon { font-size: 60px; filter: drop-shadow(0 0 12px rgba(230,126,0,0.6)); }
+    .start-title { font-size: 18px; font-weight: 900; letter-spacing: 3px; color: #888; text-transform: uppercase; }
+    .start-sub { font-size: 12px; color: #3a3a3a; letter-spacing: 1px; }
+
+    /* ── Step Screen ──────────────────────────────────────────── */
+    .step-title {
+      font-size: 24px; font-weight: 900; letter-spacing: 2px;
+      text-align: center; text-transform: uppercase; color: #e8e8e8;
+    }
+    .step-instruction { font-size: 15px; line-height: 1.65; text-align: center; color: #aaa; }
+
+    /* SVG pad diagram */
+    #padDiagram { width: 100%; max-width: 200px; align-self: center; }
+
+    /* Cable hint */
+    .cable-hint { font-size: 11px; color: #3a3a3a; text-align: center; line-height: 1.5; padding: 0 8px; }
+
+    /* Analyzing bar */
+    .analyzing-bar { height: 4px; background: #1a1a1a; border-radius: 2px; overflow: hidden; }
+    .analyzing-fill { height: 100%; width: 0%; background: #e67e00; border-radius: 2px; transition: width 4s linear; }
+
+    /* ── CPR Section ──────────────────────────────────────────── */
+    .cpr-timer {
+      font-size: 52px; font-weight: 900;
+      font-variant-numeric: tabular-nums; color: #22dd55; line-height: 1;
+    }
+    .cpr-bar-wrap { width: 100%; display: flex; flex-direction: column; gap: 4px; }
+    .cpr-bar-track {
+      width: 100%; height: 22px; background: #0a1c10;
+      border: 1px solid #142a1a; border-radius: 5px; overflow: hidden;
+    }
+    .cpr-bar-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, #0e5c25, #22dd55);
+      border-radius: 4px;
+    }
+    .cpr-bar-label { font-size: 9px; color: #2a5a35; letter-spacing: 1.5px; text-transform: uppercase; text-align: center; }
+    .cpr-bpm { font-size: 11px; color: #3a3a3a; letter-spacing: 1px; text-transform: uppercase; }
+    .cpr-status { font-size: 12px; color: #555; min-height: 16px; text-align: center; }
+    .cpr-controls { display: flex; gap: 8px; width: 100%; }
+
+    /* ── Action Button (screen) ───────────────────────────────── */
+    .btn-action {
+      background: #e67e00; color: white; border: none; border-radius: 8px;
+      padding: 15px; font-size: 16px; font-weight: 700; letter-spacing: 1px;
+      cursor: pointer; text-transform: uppercase; width: 100%;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn-action:hover { background: #cf7200; }
+    .btn-action:active { transform: scale(0.98); }
+
+    .btn-secondary {
+      flex: 1; background: transparent; color: #444;
+      border: 1px solid #222; border-radius: 6px; padding: 9px;
+      font-size: 12px; cursor: pointer; transition: color 0.2s, border-color 0.2s;
+    }
+    .btn-secondary:hover { color: #aaa; border-color: #555; }
+
+    /* ── Speaker Grille ───────────────────────────────────────── */
+    .speaker-grille {
+      height: 12px; border-radius: 4px;
+      background: repeating-linear-gradient(90deg, rgba(0,0,0,0.5) 0px, rgba(0,0,0,0.5) 3px, transparent 3px, transparent 7px);
+    }
+
+    /* ── Physical Shock Button ────────────────────────────────── */
+    .shock-zone { padding: 2px 0; }
+    .btn-shock-physical {
+      width: 100%; min-height: 72px;
+      background: linear-gradient(180deg, #2e0800, #1a0400);
+      border: 3px solid #0e0200; border-radius: 16px;
+      box-shadow: 0 5px 0 #0a0100, 0 8px 20px rgba(0,0,0,0.6);
+      color: #3a1400; cursor: default;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+    }
+    .shock-icon { font-size: 26px; }
+    .shock-text-label { font-size: 22px; font-weight: 900; letter-spacing: 4px; text-transform: uppercase; }
+    .btn-shock-physical.shock-active {
+      background: linear-gradient(180deg, #ff2200, #cc1100);
+      border-color: #880800;
+      box-shadow: 0 5px 0 #660400, 0 10px 30px rgba(255,34,0,0.5);
+      color: white; cursor: pointer;
+      animation: shock-glow 1.4s infinite;
+    }
+    .btn-shock-physical.shock-active:active {
+      box-shadow: 0 1px 0 #660400, 0 4px 15px rgba(255,34,0,0.3);
+      transform: translateY(4px);
+    }
+    @keyframes shock-glow {
+      0%, 100% { box-shadow: 0 5px 0 #660400, 0 8px 24px rgba(255,34,0,0.4); }
+      50%       { box-shadow: 0 5px 0 #660400, 0 14px 44px rgba(255,34,0,0.9); }
+    }
+
+    /* ── Connector Port ───────────────────────────────────────── */
+    .connector-zone { display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 2px; }
+    .port-circle {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: radial-gradient(circle at 38% 32%, #2a2a20, #080806);
+      border: 2px solid #1a1600;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.9), 0 1px 0 rgba(255,220,0,0.12);
+    }
+    .port-label { font-size: 8px; color: #5a4800; letter-spacing: 2.5px; text-transform: uppercase; font-weight: 700; }
+
+    /* ── Shock Overlay ────────────────────────────────────────── */
+    #shock-overlay {
+      position: fixed; inset: 0; background: #cc1500;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999; pointer-events: none; opacity: 0;
+    }
+    #shock-overlay.active { animation: shock-flash 0.75s forwards; pointer-events: all; }
+    @keyframes shock-flash { 0% { opacity: 0.95; } 40% { opacity: 0.85; } 100% { opacity: 0; } }
+    .shock-overlay-text {
+      font-size: 30px; font-weight: 900; letter-spacing: 4px;
+      color: white; text-align: center; text-shadow: 0 0 40px rgba(255,255,255,0.8);
+    }
+
+    /* ── Step fade ────────────────────────────────────────────── */
+    #stepScreen { transition: opacity 0.18s ease; }
+
+    /* ── Mobile ───────────────────────────────────────────────── */
+    @media (max-width: 460px) {
+      body { padding: 0; }
+      .aed-device { border-radius: 0; border-left: none; border-right: none; min-height: 100vh; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="shock-overlay">
+  <div class="shock-overlay-text" id="shockOverlayText">⚡ SHOCK DELIVERED ⚡</div>
+</div>
+
+<div class="aed-device">
+
+  <!-- Header -->
+  <div class="device-header">
+    <div>
+      <div class="device-brand" id="deviceBrand">IPSSW AED</div>
+      <div class="device-model" id="deviceModel">Training Simulator</div>
+    </div>
+    <div class="header-right">
+      <button class="btn-mute" id="muteBtn" onclick="toggleMute()">🔊</button>
+      <div class="status-light" id="statusLight"></div>
+    </div>
+  </div>
+
+  <!-- Language toggles -->
+  <div class="lang-bar">
+    <div class="lang-group">
+      <span class="lang-label">TEXT</span>
+      <button class="lang-btn active" id="textEN" onclick="setTextLang('en')">EN</button>
+      <button class="lang-btn" id="textIT" onclick="setTextLang('it')">IT</button>
+    </div>
+    <div class="lang-group">
+      <span class="lang-label">VOICE</span>
+      <button class="lang-btn active" id="voiceEN" onclick="setVoiceLang('en')">EN</button>
+      <button class="lang-btn" id="voiceIT" onclick="setVoiceLang('it')">IT</button>
+    </div>
+  </div>
+
+  <!-- LCD Screen -->
+  <div class="screen">
+    <div class="step-indicator" id="stepIndicator"></div>
+    <div class="cable-banner" id="cableBanner" style="display:none;"></div>
+
+    <!-- Start screen -->
+    <div id="startScreen" style="display:flex;flex:1;">
+      <div class="start-inner">
+        <div class="aed-icon">⚡</div>
+        <div class="start-title" id="startTitle">IPSSW AED</div>
+        <div class="start-sub" id="startSub">Training Simulator</div>
+        <button class="btn-action" style="margin-top:10px;" id="startBtn" onclick="startAED()">POWER ON</button>
+      </div>
+    </div>
+
+    <!-- Step screen -->
+    <div id="stepScreen" style="display:none;flex-direction:column;gap:12px;flex:1;">
+      <div class="step-title" id="stepTitle"></div>
+      <div class="step-instruction" id="stepInstruction"></div>
+
+      <!-- SVG anatomical pad diagram -->
+      <svg id="padDiagram" viewBox="0 0 200 210" xmlns="http://www.w3.org/2000/svg"
+           style="display:none;width:100%;max-width:200px;align-self:center;">
+        <!-- Head -->
+        <ellipse cx="100" cy="24" rx="22" ry="20" stroke="#444" stroke-width="1.5" fill="none"/>
+        <!-- Neck -->
+        <line x1="89" y1="43" x2="86" y2="57" stroke="#444" stroke-width="1.5"/>
+        <line x1="111" y1="43" x2="114" y2="57" stroke="#444" stroke-width="1.5"/>
+        <!-- Left shoulder + torso (patient's RIGHT = left in diagram) -->
+        <path d="M 86 57 Q 58 54 18 72" stroke="#444" stroke-width="1.5" fill="none"/>
+        <path d="M 18 72 Q 10 132 28 205" stroke="#444" stroke-width="1.5" fill="none"/>
+        <!-- Right shoulder + torso (patient's LEFT = right in diagram) -->
+        <path d="M 114 57 Q 142 54 182 72" stroke="#444" stroke-width="1.5" fill="none"/>
+        <path d="M 182 72 Q 190 132 172 205" stroke="#444" stroke-width="1.5" fill="none"/>
+        <!-- Bottom -->
+        <path d="M 28 205 Q 100 215 172 205" stroke="#444" stroke-width="1.5" fill="none"/>
+        <!-- Clavicles -->
+        <path d="M 100 59 Q 72 53 22 60" stroke="#444" stroke-width="1.5" fill="none"/>
+        <path d="M 100 59 Q 128 53 178 60" stroke="#444" stroke-width="1.5" fill="none"/>
+        <!-- Sternum (dashed) -->
+        <line x1="100" y1="61" x2="100" y2="178" stroke="#2e2e2e" stroke-width="1" stroke-dasharray="5,4"/>
+        <!-- Ribs — patient's right (left in diagram) -->
+        <path d="M 100 80 Q 72 76 28 86" stroke="#323228" stroke-width="1" fill="none"/>
+        <path d="M 100 98 Q 68 94 24 106" stroke="#323228" stroke-width="1" fill="none"/>
+        <path d="M 100 117 Q 68 114 26 128" stroke="#323228" stroke-width="1" fill="none"/>
+        <path d="M 100 136 Q 70 134 32 150" stroke="#323228" stroke-width="1" fill="none"/>
+        <!-- Ribs — patient's left (right in diagram) -->
+        <path d="M 100 80 Q 128 76 172 86" stroke="#323228" stroke-width="1" fill="none"/>
+        <path d="M 100 98 Q 132 94 176 106" stroke="#323228" stroke-width="1" fill="none"/>
+        <path d="M 100 117 Q 132 114 174 128" stroke="#323228" stroke-width="1" fill="none"/>
+        <path d="M 100 136 Q 130 134 168 150" stroke="#323228" stroke-width="1" fill="none"/>
+        <!-- R / L anatomical labels -->
+        <text x="12" y="70" font-size="9" fill="#555" font-family="sans-serif" font-weight="700">R</text>
+        <text x="184" y="70" font-size="9" fill="#555" font-family="sans-serif" font-weight="700">L</text>
+        <!-- PAD 1: patient's right chest, infraclavicular (left in diagram) -->
+        <rect x="16" y="66" width="52" height="30" rx="5"
+              fill="rgba(210,80,0,0.9)" stroke="#ff8800" stroke-width="2"/>
+        <text x="42" y="79" text-anchor="middle" font-size="8.5" font-family="sans-serif"
+              fill="white" font-weight="700">PAD 1</text>
+        <text x="42" y="91" text-anchor="middle" font-size="7" font-family="sans-serif" fill="#ffcc88">Right chest</text>
+        <!-- PAD 2: patient's left lateral, 5th–6th ICS (right in diagram) -->
+        <rect x="132" y="106" width="52" height="30" rx="5"
+              fill="rgba(210,80,0,0.9)" stroke="#ff8800" stroke-width="2"/>
+        <text x="158" y="119" text-anchor="middle" font-size="8.5" font-family="sans-serif"
+              fill="white" font-weight="700">PAD 2</text>
+        <text x="158" y="131" text-anchor="middle" font-size="7" font-family="sans-serif" fill="#ffcc88">Left side</text>
+      </svg>
+
+      <div class="cable-hint" id="cableHint" style="display:none;"></div>
+
+      <div class="analyzing-bar" id="analyzingBar" style="display:none;">
+        <div class="analyzing-fill" id="analyzingFill"></div>
+      </div>
+
+      <!-- CPR section -->
+      <div id="cprSection" style="display:none;flex-direction:column;align-items:center;gap:10px;">
+        <div class="cpr-timer" id="cprTimer">2:00</div>
+        <div class="cpr-bar-wrap">
+          <div class="cpr-bar-track">
+            <div class="cpr-bar-fill" id="cprBar"></div>
+          </div>
+          <div class="cpr-bar-label" id="cprBarLabel">Compression Depth</div>
+        </div>
+        <div class="cpr-bpm">110 bpm · AHA guideline</div>
+        <div class="cpr-status" id="cprStatus"></div>
+        <div class="cpr-controls">
+          <button class="btn-secondary" id="cprStartStop" onclick="toggleCPR()">▶ Start CPR</button>
+          <button class="btn-secondary" id="cprResetBtn" onclick="resetCPR()">↺ Reset</button>
+        </div>
+      </div>
+
+      <button class="btn-action" id="actionBtn" onclick="handleAction()"
+              style="display:none;margin-top:auto;"></button>
+    </div>
+  </div>
+
+  <!-- Speaker grille -->
+  <div class="speaker-grille"></div>
+
+  <!-- Physical shock button -->
+  <div class="shock-zone">
+    <button class="btn-shock-physical" id="shockBtn" onclick="handleShock()" disabled>
+      <span class="shock-icon">⚡</span>
+      <span class="shock-text-label" id="shockBtnLabel">SHOCK</span>
+    </button>
+  </div>
+
+  <!-- Connector port -->
+  <div class="connector-zone">
+    <div class="port-circle"></div>
+    <div class="port-label">CONNECTOR</div>
+  </div>
+
+</div>
+
+<script>
+  // ── Bilingual content ────────────────────────────────────────────
+  const CONTENT = {
+    en: {
+      brand: 'IPSSW AED', model: 'Training Simulator',
+      startTitle: 'IPSSW AED', startSub: 'Training Simulator', startBtn: 'POWER ON',
+      shockBtn: 'SHOCK', shockOverlay: '⚡ SHOCK DELIVERED ⚡',
+      cableConnected: '⚡ Cable connected — pads attached!',
+      cableHint: 'Plug in your charging cable to simulate connecting pads — or press the button below',
+      cprStart: '▶ Start CPR', cprStop: '⏸ Stop CPR', cprReset: '↺ Reset',
+      cprPaused: 'Paused', cprPushing: 'Push — release — push — release…',
+      cprDone: '2 minutes complete — re-analyze rhythm',
+      cprDoneSpeech: 'Two minutes of CPR complete. Stop compressions and re-analyze the heart rhythm.',
+      compressionDepth: 'Compression Depth',
+      steps: [
+        { title: 'POWER ON',
+          instruction: 'Remove all clothing from the patient\'s chest. Send someone to call 911 immediately.',
+          voice: 'AED powered on. Remove clothing from the patient\'s chest. Send someone to call nine one one immediately.',
+          btn: 'CONTINUE ›', light: 'yellow' },
+        { title: 'ATTACH PADS',
+          instruction: 'Place pad one below the right collarbone. Place pad two on the left side of the chest, below the armpit. Connect the cable.',
+          voice: 'Place pad one below the right collarbone. Place pad two on the left side of the chest, below the armpit.',
+          btn: 'PADS ATTACHED ›', light: 'yellow' },
+        { title: 'ANALYZING RHYTHM',
+          instruction: 'Everyone stand clear. Do not touch the patient.',
+          voice: 'Everyone stand clear. Do not touch the patient. Analyzing heart rhythm now.',
+          btn: null, light: 'yellow' },
+        { title: 'SHOCK ADVISED',
+          instruction: 'Shockable rhythm detected. Ensure no one is touching the patient. Press the SHOCK button.',
+          voice: 'Shock advised. Make sure no one is touching the patient. When clear, press the shock button.',
+          btn: null, light: 'red' },
+        { title: 'BEGIN CPR',
+          instruction: 'Push hard and fast in the center of the chest. Allow full chest recoil between compressions.',
+          voice: 'Shock delivered. Begin CPR. Push down about two inches, at a rate of one hundred ten compressions per minute.',
+          btn: '↺ START OVER', light: 'green' }
+      ]
+    },
+    it: {
+      brand: 'IPSSW DAE', model: 'Simulatore di Addestramento',
+      startTitle: 'IPSSW DAE', startSub: 'Simulatore di Addestramento', startBtn: 'ACCENDI',
+      shockBtn: 'SCARICA', shockOverlay: '⚡ SCARICA EROGATA ⚡',
+      cableConnected: '⚡ Cavo collegato — elettrodi applicati!',
+      cableHint: 'Collega il cavo di ricarica per simulare la connessione degli elettrodi — oppure premi il pulsante',
+      cprStart: '▶ Avvia RCP', cprStop: '⏸ Pausa RCP', cprReset: '↺ Reimposta',
+      cprPaused: 'In pausa', cprPushing: 'Comprimi — rilascia — comprimi — rilascia…',
+      cprDone: '2 minuti completati — rivalutare il ritmo',
+      cprDoneSpeech: 'Due minuti di RCP completati. Interrompere le compressioni e rivalutare il ritmo cardiaco.',
+      compressionDepth: 'Profondità Compressione',
+      steps: [
+        { title: 'ACCENSIONE',
+          instruction: 'Rimuovere i vestiti dal torace del paziente. Chiamare il 118 immediatamente.',
+          voice: 'DAE acceso. Rimuovere i vestiti dal torace del paziente. Chiamare il centodiciotto immediatamente.',
+          btn: 'CONTINUA ›', light: 'yellow' },
+        { title: 'APPLICA ELETTRODI',
+          instruction: 'Posizionare il primo elettrodo sotto la clavicola destra. Posizionare il secondo sul lato sinistro del torace, sotto il braccio. Collegare il cavo.',
+          voice: 'Posizionare il primo elettrodo sotto la clavicola destra. Posizionare il secondo elettrodo sul lato sinistro del torace, sotto il braccio.',
+          btn: 'ELETTRODI APPLICATI ›', light: 'yellow' },
+        { title: 'ANALISI RITMO',
+          instruction: 'Tutti lontani dal paziente. Non toccare il paziente.',
+          voice: 'Tutti lontani dal paziente. Non toccare il paziente. Analisi del ritmo cardiaco in corso.',
+          btn: null, light: 'yellow' },
+        { title: 'SCOSSA CONSIGLIATA',
+          instruction: 'Ritmo defibrillabile rilevato. Assicurarsi che nessuno tocchi il paziente. Premere il pulsante SCARICA.',
+          voice: 'Scossa consigliata. Assicurarsi che nessuno stia toccando il paziente. Quando è libero, premere il pulsante di scarica.',
+          btn: null, light: 'red' },
+        { title: 'INIZIA RCP',
+          instruction: 'Premere forte e veloce al centro del torace. Permettere la completa decompressione tra le compressioni.',
+          voice: 'Scarica erogata. Inizia la rianimazione cardiopolmonare. Comprimi a fondo, a centodici compressioni al minuto.',
+          btn: '↺ RICOMINCIA', light: 'green' }
+      ]
+    }
+  };
+
+  // ── State ────────────────────────────────────────────────────────
+  let current = -1, muted = false, cprRunning = false;
+  let cprTick = null, timerTick = null, timerSecs = 120, audioCtx = null;
+  let textLang = 'en', voiceLang = 'en';
+  let selectedVoice = { en: null, it: null };
+  const BEAT_MS = Math.round(60000 / 110);
+
+  // ── Voice selection ──────────────────────────────────────────────
+  function initVoices() {
+    const v = speechSynthesis.getVoices();
+    if (!v.length) return;
+    selectedVoice.en =
+      v.find(x => x.name.includes('Samantha')) ||
+      v.find(x => x.name.includes('Karen'))    ||
+      v.find(x => x.name.includes('Moira'))    ||
+      v.find(x => x.name.includes('Fiona'))    ||
+      v.find(x => /natural|enhanced/i.test(x.name) && x.lang.startsWith('en')) ||
+      v.find(x => x.lang === 'en-US') ||
+      v.find(x => x.lang === 'en-GB') || null;
+    selectedVoice.it =
+      v.find(x => x.name.includes('Alice')) ||
+      v.find(x => x.lang === 'it-IT')       ||
+      v.find(x => x.lang.startsWith('it'))  || null;
+  }
+  if (window.speechSynthesis) {
+    initVoices();
+    speechSynthesis.addEventListener('voiceschanged', initVoices);
+  }
+
+  // ── Init step dots ───────────────────────────────────────────────
+  (function() {
+    document.getElementById('stepIndicator').innerHTML =
+      CONTENT.en.steps.map((_, i) => `<div class="step-dot" id="dot${i}"></div>`).join('');
+  })();
+
+  function setDots(active) {
+    CONTENT.en.steps.forEach((_, i) => {
+      document.getElementById('dot' + i).className =
+        'step-dot' + (i === active ? ' active' : i < active ? ' done' : '');
+    });
+  }
+
+  // ── Speech ───────────────────────────────────────────────────────
+  function speak(text) {
+    if (muted || !text || !window.speechSynthesis) return;
+    speechSynthesis.cancel();
+    const sentences = text.split('. ').map((s, i, a) => i < a.length - 1 ? s + '.' : s).filter(s => s.trim());
+    function next(i) {
+      if (i >= sentences.length) return;
+      const u = new SpeechSynthesisUtterance(sentences[i].trim());
+      u.rate = 0.92; u.pitch = 1.05;
+      u.lang = voiceLang === 'it' ? 'it-IT' : 'en-US';
+      if (selectedVoice[voiceLang]) u.voice = selectedVoice[voiceLang];
+      u.onend = () => setTimeout(() => next(i + 1), 250);
+      speechSynthesis.speak(u);
+    }
+    next(0);
+  }
+
+  function toggleMute() {
+    muted = !muted;
+    const btn = document.getElementById('muteBtn');
+    btn.textContent = muted ? '🔇' : '🔊';
+    btn.classList.toggle('muted', muted);
+    if (muted && window.speechSynthesis) speechSynthesis.cancel();
+  }
+
+  // ── Audio ────────────────────────────────────────────────────────
+  function getCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+  }
+  function beep(freq = 880, dur = 0.07, vol = 0.25) {
+    if (muted) return;
+    try {
+      const ctx = getCtx(), osc = ctx.createOscillator(), gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(vol, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + dur);
+    } catch(e) {}
+  }
+  function shockBeep() {
+    if (muted) return;
+    try {
+      const ctx = getCtx(), osc = ctx.createOscillator(), gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = 180;
+      gain.gain.setValueAtTime(0.9, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.55);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.55);
+    } catch(e) {}
+  }
+
+  // ── CPR ──────────────────────────────────────────────────────────
+  function toggleCPR() { cprRunning ? stopCPR() : startCPR(); }
+  function startCPR() {
+    cprRunning = true;
+    const c = CONTENT[textLang];
+    document.getElementById('cprStartStop').textContent = c.cprStop;
+    document.getElementById('cprStatus').textContent = c.cprPushing;
+    doBeat();
+    cprTick = setInterval(doBeat, BEAT_MS);
+    if (!timerTick) timerTick = setInterval(tickTimer, 1000);
+  }
+  function stopCPR() {
+    cprRunning = false;
+    clearInterval(cprTick); cprTick = null;
+    document.getElementById('cprStartStop').textContent = CONTENT[textLang].cprStart;
+    document.getElementById('cprStatus').textContent = CONTENT[textLang].cprPaused;
+  }
+  function doBeat() {
+    beep();
+    const bar = document.getElementById('cprBar');
+    bar.style.transition = 'none'; bar.style.width = '0%';
+    void bar.offsetWidth;
+    bar.style.transition = 'width 0.14s ease-out'; bar.style.width = '72%';
+    setTimeout(() => { bar.style.transition = 'width 0.28s ease-in'; bar.style.width = '0%'; }, 140);
+  }
+  function tickTimer() {
+    if (timerSecs <= 0) return;
+    timerSecs--;
+    renderTimer();
+    if (timerSecs === 0) {
+      clearInterval(timerTick); timerTick = null;
+      if (cprRunning) stopCPR();
+      document.getElementById('cprStatus').textContent = CONTENT[textLang].cprDone;
+      speak(CONTENT[voiceLang].cprDoneSpeech);
+    }
+  }
+  function resetCPR() {
+    if (cprRunning) stopCPR();
+    clearInterval(timerTick); timerTick = null;
+    timerSecs = 120; renderTimer();
+    document.getElementById('cprStatus').textContent = '';
+    document.getElementById('cprStartStop').textContent = CONTENT[textLang].cprStart;
+  }
+  function renderTimer() {
+    const m = Math.floor(timerSecs / 60), s = timerSecs % 60;
+    document.getElementById('cprTimer').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  }
+
+  // ── Language ─────────────────────────────────────────────────────
+  function setTextLang(lang) {
+    textLang = lang;
+    document.getElementById('textEN').classList.toggle('active', lang === 'en');
+    document.getElementById('textIT').classList.toggle('active', lang === 'it');
+    const c = CONTENT[lang];
+    document.getElementById('deviceBrand').textContent = c.brand;
+    document.getElementById('deviceModel').textContent = c.model;
+    if (current === -1) {
+      document.getElementById('startTitle').textContent = c.startTitle;
+      document.getElementById('startSub').textContent   = c.startSub;
+      document.getElementById('startBtn').textContent   = c.startBtn;
+    } else {
+      renderStepText(current);
+    }
+  }
+  function setVoiceLang(lang) {
+    voiceLang = lang;
+    document.getElementById('voiceEN').classList.toggle('active', lang === 'en');
+    document.getElementById('voiceIT').classList.toggle('active', lang === 'it');
+    if (window.speechSynthesis) speechSynthesis.cancel();
+  }
+
+  // ── Render step text/buttons ─────────────────────────────────────
+  function renderStepText(i) {
+    const step = CONTENT[textLang].steps[i];
+    const c    = CONTENT[textLang];
+    document.getElementById('stepTitle').textContent       = step.title;
+    document.getElementById('stepInstruction').textContent = step.instruction;
+    document.getElementById('shockBtnLabel').textContent   = c.shockBtn;
+    document.getElementById('cprBarLabel').textContent     = c.compressionDepth;
+    document.getElementById('cprResetBtn').textContent     = c.cprReset;
+
+    const actionBtn = document.getElementById('actionBtn');
+    const shockBtn  = document.getElementById('shockBtn');
+
+    if (i === 3) {
+      // Shock step: physical button active, screen button hidden
+      actionBtn.style.display = 'none';
+      shockBtn.classList.add('shock-active');
+      shockBtn.disabled = false;
+    } else if (step.btn) {
+      actionBtn.textContent  = step.btn;
+      actionBtn.style.display = 'block';
+      shockBtn.classList.remove('shock-active');
+      shockBtn.disabled = true;
+    } else {
+      // Analyzing — no button
+      actionBtn.style.display = 'none';
+      shockBtn.classList.remove('shock-active');
+      shockBtn.disabled = true;
+    }
+
+    // Cable hint on attach-pads step
+    const cableHint = document.getElementById('cableHint');
+    if (i === 1) {
+      cableHint.textContent   = c.cableHint;
+      cableHint.style.display = 'block';
+    } else {
+      cableHint.style.display = 'none';
+    }
+
+    // CPR labels refresh if on CPR step
+    if (i === 4 && !cprRunning) {
+      document.getElementById('cprStartStop').textContent = c.cprStart;
+    }
+  }
+
+  // ── Show step ────────────────────────────────────────────────────
+  function showStep(i) {
+    current = i;
+    const stepScreen = document.getElementById('stepScreen');
+
+    // Fade out
+    stepScreen.style.opacity = '0';
+
+    setTimeout(() => {
+      const step = CONTENT[textLang].steps[i];
+
+      document.getElementById('startScreen').style.display = 'none';
+      stepScreen.style.display = 'flex';
+
+      document.getElementById('statusLight').className = 'status-light ' + step.light;
+      setDots(i);
+
+      // Pad SVG
+      document.getElementById('padDiagram').style.display = (i === 1) ? 'block' : 'none';
+
+      // Analyzing bar
+      const bar  = document.getElementById('analyzingBar');
+      const fill = document.getElementById('analyzingFill');
+      if (i === 2) {
+        bar.style.display = 'block';
+        fill.style.transition = 'none'; fill.style.width = '0%';
+        setTimeout(() => { fill.style.transition = 'width 4s linear'; fill.style.width = '100%'; }, 30);
+        setTimeout(() => showStep(3), 4300);
+      } else {
+        bar.style.display = 'none';
+      }
+
+      // CPR section
+      const cprSec = document.getElementById('cprSection');
+      if (i === 4) {
+        cprSec.style.display = 'flex';
+      } else {
+        cprSec.style.display = 'none';
+        resetCPR();
+      }
+
+      renderStepText(i);
+
+      // Fade in
+      stepScreen.style.opacity = '1';
+
+      // Speak
+      speak(CONTENT[voiceLang].steps[i].voice);
+    }, 180);
+  }
+
+  // ── Actions ──────────────────────────────────────────────────────
+  function startAED() { showStep(0); }
+
+  function handleAction() {
+    if (current === 4) {
+      // Restart
+      resetCPR();
+      document.getElementById('stepScreen').style.display  = 'none';
+      document.getElementById('startScreen').style.display = 'flex';
+      document.getElementById('statusLight').className = 'status-light';
+      setDots(-1); current = -1;
+      const c = CONTENT[textLang];
+      document.getElementById('startTitle').textContent = c.startTitle;
+      document.getElementById('startSub').textContent   = c.startSub;
+      document.getElementById('startBtn').textContent   = c.startBtn;
+    } else if (current >= 0 && current !== 2 && current !== 3) {
+      showStep(current + 1);
+    }
+  }
+
+  function handleShock() {
+    if (current !== 3) return;
+    shockBeep();
+    const overlay = document.getElementById('shock-overlay');
+    document.getElementById('shockOverlayText').textContent = CONTENT[textLang].shockOverlay;
+    overlay.classList.remove('active');
+    void overlay.offsetWidth;
+    overlay.classList.add('active');
+    setTimeout(() => { overlay.classList.remove('active'); showStep(4); }, 850);
+  }
+
+  // ── Battery / cable detection ────────────────────────────────────
+  async function initBatteryDetection() {
+    if (!('getBattery' in navigator)) return;
+    try {
+      const battery = await navigator.getBattery();
+      battery.addEventListener('chargingchange', () => {
+        if (battery.charging && current === 1) {
+          const banner = document.getElementById('cableBanner');
+          banner.textContent   = CONTENT[textLang].cableConnected;
+          banner.style.display = 'block';
+          setTimeout(() => { banner.style.display = 'none'; }, 3000);
+          setTimeout(() => handleAction(), 1400);
+        }
+      });
+    } catch(e) {}
+  }
+  initBatteryDetection();
+</script>
+</body>
+</html>
