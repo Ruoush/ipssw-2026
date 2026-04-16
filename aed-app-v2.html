@@ -855,15 +855,17 @@
         resetCPR();
       }
 
-      renderStepText(i);
+      try { renderStepText(i); } catch(e) { console.error('renderStepText error step', i, e); }
 
       // Fade in
       stepScreen.style.opacity = '1';
 
       // Speak — use noShockStep voice when applicable; extra pause before step 3
-      const voiceDef   = (i === 3 && !isShockPath) ? CONTENT[voiceLang].noShockStep : CONTENT[voiceLang].steps[i];
+      const voiceText  = (i === 3 && !isShockPath)
+        ? CONTENT[voiceLang].noShockStep.voice
+        : CONTENT[voiceLang].steps[i].voice;
       const speakDelay = (i === 3) ? 750 : 0;
-      setTimeout(() => speak(voiceDef.voice), speakDelay);
+      setTimeout(() => speak(voiceText), speakDelay);
     }, 180);
   }
 
