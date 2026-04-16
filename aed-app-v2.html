@@ -235,6 +235,24 @@
       box-shadow: inset 0 2px 6px rgba(0,0,0,0.9), 0 1px 0 rgba(255,220,0,0.12);
     }
     .port-label { font-size: 8px; color: #5a4800; letter-spacing: 2.5px; text-transform: uppercase; font-weight: 700; }
+    .port-circle.connected {
+      background: radial-gradient(circle at 38% 32%, #0a4020, #042010);
+      border-color: #22dd55;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.9), 0 0 8px #22dd55;
+      transition: background 0.4s, border-color 0.4s, box-shadow 0.4s;
+    }
+    .joules-display {
+      font-size: 36px; font-weight: 900; font-variant-numeric: tabular-nums;
+      color: #e67e00; letter-spacing: 3px; text-align: center;
+      background: #0d0c08; border: 1px solid #2a2000; border-radius: 6px;
+      padding: 8px 16px;
+    }
+    .case-summary {
+      font-size: 11px; color: #22dd55; text-align: center;
+      border: 1px solid #0e4020; background: #020e06;
+      border-radius: 6px; padding: 10px 12px; line-height: 1.7;
+      letter-spacing: 0.5px;
+    }
 
     /* ── Shock Overlay ────────────────────────────────────────── */
     #shock-overlay {
@@ -290,6 +308,12 @@
       <span class="lang-label">VOICE</span>
       <button class="lang-btn active" id="voiceEN" onclick="setVoiceLang('en')">EN</button>
       <button class="lang-btn" id="voiceIT" onclick="setVoiceLang('it')">IT</button>
+    </div>
+    <div class="lang-group">
+      <span class="lang-label">PATH</span>
+      <button class="lang-btn active" id="pathAuto"    onclick="setPath('auto')">AUTO</button>
+      <button class="lang-btn"        id="pathShock"   onclick="setPath('shock')">⚡</button>
+      <button class="lang-btn"        id="pathNoShock" onclick="setPath('no-shock')">✓</button>
     </div>
   </div>
 
@@ -363,6 +387,8 @@
 
       <div class="cable-hint" id="cableHint" style="display:none;"></div>
 
+      <div class="joules-display" id="joulesDisplay" style="display:none;">200J</div>
+
       <div class="analyzing-bar" id="analyzingBar" style="display:none;">
         <div class="analyzing-fill" id="analyzingFill"></div>
       </div>
@@ -388,6 +414,8 @@
           <button class="btn-secondary" id="cprStartStop" onclick="toggleCPR()">▶ Start CPR</button>
           <button class="btn-secondary" id="cprResetBtn" onclick="resetCPR()">↺ Reset</button>
         </div>
+        <div id="caseSummary" class="case-summary" style="display:none;"></div>
+        <button class="btn-secondary" id="reanalyzeBtn" onclick="reanalyze()" style="display:none;">⟳ Re-analyze</button>
       </div>
 
       <button class="btn-action" id="actionBtn" onclick="handleAction()"
@@ -408,7 +436,7 @@
 
   <!-- Connector port -->
   <div class="connector-zone">
-    <div class="port-circle"></div>
+    <div class="port-circle" id="portCircle"></div>
     <div class="port-label">CONNECTOR</div>
   </div>
 
@@ -423,6 +451,14 @@
       shockBtn: 'SHOCK', shockOverlay: '⚡ SHOCK DELIVERED ⚡',
       cableConnected: '⚡ Cable connected — pads attached!',
       cableHint: 'Plug in your charging cable to simulate connecting pads — or press the button below',
+      caseCompleteShock:   '✓ Shock delivered · 2:00 CPR complete · Reassess rhythm',
+      caseCompleteNoShock: '✓ No shock delivered · 2:00 CPR complete · Reassess rhythm',
+      noShockStep: {
+        title: 'NO SHOCK ADVISED',
+        instruction: 'No shockable rhythm detected. Resume CPR immediately.',
+        voice: 'No shock advised. No shockable rhythm detected. Resume CPR immediately.',
+        btn: 'BEGIN CPR ›', light: 'green'
+      },
       cprStart: '▶ Start CPR', cprStop: '⏸ Stop CPR', cprReset: '↺ Reset',
       cprPaused: 'Paused', cprPushing: 'Push — release — push — release…',
       cprDone: '2 minutes complete — re-analyze rhythm',
@@ -457,6 +493,14 @@
       shockBtn: 'SCARICA', shockOverlay: '⚡ SCARICA EROGATA ⚡',
       cableConnected: '⚡ Cavo collegato — elettrodi applicati!',
       cableHint: 'Collega il cavo di ricarica per simulare la connessione degli elettrodi — oppure premi il pulsante',
+      caseCompleteShock:   '✓ Scarica erogata · RCP 2:00 completata · Rivalutare il ritmo',
+      caseCompleteNoShock: '✓ Nessuna scarica erogata · RCP 2:00 completata · Rivalutare il ritmo',
+      noShockStep: {
+        title: 'NESSUNA SCARICA',
+        instruction: 'Nessun ritmo defibrillabile rilevato. Riprendere la RCP immediatamente.',
+        voice: 'Nessuna scarica consigliata. Nessun ritmo defibrillabile rilevato. Riprendere la rianimazione cardiopolmonare immediatamente.',
+        btn: 'INIZIA RCP ›', light: 'green'
+      },
       cprStart: '▶ Avvia RCP', cprStop: '⏸ Pausa RCP', cprReset: '↺ Reimposta',
       cprPaused: 'In pausa', cprPushing: 'Comprimi — rilascia — comprimi — rilascia…',
       cprDone: '2 minuti completati — rivalutare il ritmo',
@@ -491,6 +535,7 @@
   let current = -1, muted = false, cprRunning = false;
   let cprTick = null, timerTick = null, timerSecs = 120, audioCtx = null;
   let textLang = 'en', voiceLang = 'en';
+  let forcedPath = 'auto', isShockPath = true;
   let selectedVoice = { en: null, it: null };
   const BEAT_MS = Math.round(60000 / 110);
 
@@ -646,6 +691,10 @@
     void bar.offsetWidth;
     bar.style.transition = 'width 0.14s ease-out'; bar.style.width = '72%';
     setTimeout(() => { bar.style.transition = 'width 0.28s ease-in'; bar.style.width = '0%'; }, 140);
+    const status = document.getElementById('cprStatus');
+    const prev   = status.textContent;
+    status.textContent = '▼ PUSH';
+    setTimeout(() => { if (cprRunning) status.textContent = prev; }, 200);
   }
   function tickTimer() {
     if (timerSecs <= 0) return;
@@ -656,6 +705,10 @@
       if (cprRunning) stopCPR();
       document.getElementById('cprStatus').textContent = CONTENT[textLang].cprDone;
       speak(CONTENT[voiceLang].cprDoneSpeech);
+      const summary = document.getElementById('caseSummary');
+      summary.textContent   = isShockPath ? CONTENT[textLang].caseCompleteShock : CONTENT[textLang].caseCompleteNoShock;
+      summary.style.display = 'block';
+      document.getElementById('reanalyzeBtn').style.display = 'block';
     }
   }
   function resetCPR() {
@@ -664,6 +717,8 @@
     timerSecs = 120; renderTimer();
     document.getElementById('cprStatus').textContent = '';
     document.getElementById('cprStartStop').textContent = CONTENT[textLang].cprStart;
+    document.getElementById('caseSummary').style.display  = 'none';
+    document.getElementById('reanalyzeBtn').style.display = 'none';
   }
   function renderTimer() {
     const m = Math.floor(timerSecs / 60), s = timerSecs % 60;
@@ -695,30 +750,41 @@
 
   // ── Render step text/buttons ─────────────────────────────────────
   function renderStepText(i) {
-    const step = CONTENT[textLang].steps[i];
-    const c    = CONTENT[textLang];
-    document.getElementById('stepTitle').textContent       = step.title;
-    document.getElementById('stepInstruction').textContent = step.instruction;
+    const c       = CONTENT[textLang];
+    const stepDef = (i === 3 && !isShockPath) ? c.noShockStep : c.steps[i];
+    document.getElementById('stepTitle').textContent       = stepDef.title;
+    document.getElementById('stepInstruction').textContent = stepDef.instruction;
     document.getElementById('shockBtnLabel').textContent   = c.shockBtn;
     document.getElementById('cprBarLabel').textContent     = c.compressionDepth;
     document.getElementById('cprResetBtn').textContent     = c.cprReset;
 
-    const actionBtn = document.getElementById('actionBtn');
-    const shockBtn  = document.getElementById('shockBtn');
+    const actionBtn    = document.getElementById('actionBtn');
+    const shockBtn     = document.getElementById('shockBtn');
+    const joulesDisplay = document.getElementById('joulesDisplay');
 
-    if (i === 3) {
-      // Shock step: physical button active, screen button hidden
-      actionBtn.style.display = 'none';
+    if (i === 3 && isShockPath) {
+      // Shock advised: physical button active, joules display shown
+      actionBtn.style.display  = 'none';
+      joulesDisplay.style.display = 'block';
       shockBtn.classList.add('shock-active');
       shockBtn.disabled = false;
-    } else if (step.btn) {
-      actionBtn.textContent  = step.btn;
+    } else if (i === 3 && !isShockPath) {
+      // No shock advised: action button leads to CPR
+      actionBtn.textContent   = stepDef.btn;
       actionBtn.style.display = 'block';
+      joulesDisplay.style.display = 'none';
+      shockBtn.classList.remove('shock-active');
+      shockBtn.disabled = true;
+    } else if (stepDef.btn) {
+      actionBtn.textContent   = stepDef.btn;
+      actionBtn.style.display = 'block';
+      joulesDisplay.style.display = 'none';
       shockBtn.classList.remove('shock-active');
       shockBtn.disabled = true;
     } else {
       // Analyzing — no button
       actionBtn.style.display = 'none';
+      joulesDisplay.style.display = 'none';
       shockBtn.classList.remove('shock-active');
       shockBtn.disabled = true;
     }
@@ -729,7 +795,7 @@
       cableHint.textContent   = c.cableHint;
       cableHint.style.display = 'block';
       cableHint.title         = 'Click to simulate cable connection';
-      cableHint.onclick       = () => handleAction();
+      cableHint.onclick       = simulateCableConnect;
     } else {
       cableHint.style.display = 'none';
       cableHint.onclick       = null;
@@ -751,12 +817,17 @@
     stepScreen.style.opacity = '0';
 
     setTimeout(() => {
-      const step = CONTENT[textLang].steps[i];
+      // Resolve no-shock path at analysis step
+      if (i === 2) {
+        isShockPath = forcedPath === 'shock' ? true : forcedPath === 'no-shock' ? false : Math.random() < 0.5;
+      }
+
+      const stepDef = (i === 3 && !isShockPath) ? CONTENT[textLang].noShockStep : CONTENT[textLang].steps[i];
 
       document.getElementById('startScreen').style.display = 'none';
       stepScreen.style.display = 'flex';
 
-      document.getElementById('statusLight').className = 'status-light ' + step.light;
+      document.getElementById('statusLight').className = 'status-light ' + stepDef.light;
       setDots(i);
 
       // Pad SVG
@@ -788,9 +859,10 @@
       // Fade in
       stepScreen.style.opacity = '1';
 
-      // Speak — add extra pause before shock-advised prompt
+      // Speak — use noShockStep voice when applicable; extra pause before step 3
+      const voiceDef   = (i === 3 && !isShockPath) ? CONTENT[voiceLang].noShockStep : CONTENT[voiceLang].steps[i];
       const speakDelay = (i === 3) ? 750 : 0;
-      setTimeout(() => speak(CONTENT[voiceLang].steps[i].voice), speakDelay);
+      setTimeout(() => speak(voiceDef.voice), speakDelay);
     }, 180);
   }
 
@@ -801,6 +873,7 @@
     if (current === 4) {
       // Restart
       resetCPR();
+      document.getElementById('portCircle').classList.remove('connected');
       document.getElementById('stepScreen').style.display  = 'none';
       document.getElementById('startScreen').style.display = 'flex';
       document.getElementById('statusLight').className = 'status-light';
@@ -809,6 +882,8 @@
       document.getElementById('startTitle').textContent = c.startTitle;
       document.getElementById('startSub').textContent   = c.startSub;
       document.getElementById('startBtn').textContent   = c.startBtn;
+    } else if (current === 3 && !isShockPath) {
+      showStep(4);
     } else if (current >= 0 && current !== 2 && current !== 3) {
       showStep(current + 1);
     }
@@ -816,6 +891,7 @@
 
   function handleShock() {
     if (current !== 3) return;
+    navigator.vibrate && navigator.vibrate(200);
     shockBeep();
     const overlay = document.getElementById('shock-overlay');
     document.getElementById('shockOverlayText').textContent = CONTENT[textLang].shockOverlay;
@@ -825,19 +901,39 @@
     setTimeout(() => { overlay.classList.remove('active'); showStep(4); }, 850);
   }
 
+  // ── Cable connection (shared by hint click + battery API) ────────
+  function simulateCableConnect() {
+    document.getElementById('portCircle').classList.add('connected');
+    const banner = document.getElementById('cableBanner');
+    banner.textContent   = CONTENT[textLang].cableConnected;
+    banner.style.display = 'block';
+    setTimeout(() => { banner.style.display = 'none'; }, 3000);
+    setTimeout(() => handleAction(), 1400);
+  }
+
+  // ── Scenario path selector ────────────────────────────────────────
+  function setPath(p) {
+    forcedPath = p;
+    document.getElementById('pathAuto').classList.toggle('active', p === 'auto');
+    document.getElementById('pathShock').classList.toggle('active', p === 'shock');
+    document.getElementById('pathNoShock').classList.toggle('active', p === 'no-shock');
+  }
+
+  // ── Re-analyze (skip power-on/attach-pads, go straight to step 2) ─
+  function reanalyze() {
+    document.getElementById('caseSummary').style.display  = 'none';
+    document.getElementById('reanalyzeBtn').style.display = 'none';
+    resetCPR();
+    showStep(2);
+  }
+
   // ── Battery / cable detection ────────────────────────────────────
   async function initBatteryDetection() {
     if (!('getBattery' in navigator)) return;
     try {
       const battery = await navigator.getBattery();
       battery.addEventListener('chargingchange', () => {
-        if (battery.charging && current === 1) {
-          const banner = document.getElementById('cableBanner');
-          banner.textContent   = CONTENT[textLang].cableConnected;
-          banner.style.display = 'block';
-          setTimeout(() => { banner.style.display = 'none'; }, 3000);
-          setTimeout(() => handleAction(), 1400);
-        }
+        if (battery.charging && current === 1) simulateCableConnect();
       });
     } catch(e) {}
   }
