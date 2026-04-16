@@ -577,7 +577,8 @@
 
   // ── Speech ───────────────────────────────────────────────────────
   function speak(text) {
-    if (muted || !text || !window.speechSynthesis) return;
+    console.log('[AED speak] text:', text ? text.slice(0,50) : 'EMPTY', '| muted:', muted, '| synth:', !!window.speechSynthesis, '| speaking:', speechSynthesis.speaking, '| pending:', speechSynthesis.pending);
+    if (muted || !text || !window.speechSynthesis) { console.log('[AED speak] early return'); return; }
     speechSynthesis.cancel();
     const sentences = text.split('. ').map((s, i, a) => i < a.length - 1 ? s + '.' : s).filter(s => s.trim());
     function next(i) {
@@ -587,6 +588,8 @@
       u.lang = voiceLang === 'it' ? 'it-IT' : 'en-US';
       if (selectedVoice[voiceLang]) u.voice = selectedVoice[voiceLang];
       u.onend = () => setTimeout(() => next(i + 1), 250);
+      u.onerror = (e) => console.error('[AED speak] utterance error:', e.error, sentences[i]);
+      console.log('[AED speak] queuing:', sentences[i], '| voice:', u.voice ? u.voice.name : 'default');
       speechSynthesis.speak(u);
     }
     next(0);
