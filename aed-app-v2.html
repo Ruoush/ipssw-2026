@@ -138,7 +138,8 @@
     #padDiagram { width: 100%; max-width: 200px; align-self: center; }
 
     /* Cable hint */
-    .cable-hint { font-size: 11px; color: #3a3a3a; text-align: center; line-height: 1.5; padding: 0 8px; }
+    .cable-hint { font-size: 11px; color: #3a3a3a; text-align: center; line-height: 1.5; padding: 0 8px; cursor: pointer; }
+    .cable-hint:hover { color: #22dd55; }
 
     /* Analyzing bar */
     .analyzing-bar { height: 4px; background: #1a1a1a; border-radius: 2px; overflow: hidden; }
@@ -727,8 +728,12 @@
     if (i === 1) {
       cableHint.textContent   = c.cableHint;
       cableHint.style.display = 'block';
+      cableHint.title         = 'Click to simulate cable connection';
+      cableHint.onclick       = () => handleAction();
     } else {
       cableHint.style.display = 'none';
+      cableHint.onclick       = null;
+      cableHint.title         = '';
     }
 
     // CPR labels refresh if on CPR step
