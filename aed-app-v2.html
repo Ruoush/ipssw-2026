@@ -538,6 +538,7 @@
   let textLang = 'en', voiceLang = 'en';
   let forcedPath = 'auto', isShockPath = true;
   let selectedVoice = { en: null, it: null };
+  let currentUtterance = null; // Chrome GC fix: keep utterance in global scope
   const BEAT_MS = Math.round(60000 / 110);
 
   // ── Voice selection ──────────────────────────────────────────────
@@ -580,17 +581,21 @@
     if (muted || !text || !window.speechSynthesis) return;
     speechSynthesis.cancel();
     if (speechSynthesis.paused) speechSynthesis.resume(); // Safari: cancel can leave synth in paused state
-    const sentences = text.split('. ').map((s, i, a) => i < a.length - 1 ? s + '.' : s).filter(s => s.trim());
-    function next(i) {
-      if (i >= sentences.length) return;
-      const u = new SpeechSynthesisUtterance(sentences[i].trim());
-      u.rate = 0.92; u.pitch = 1.05;
-      u.lang = voiceLang === 'it' ? 'it-IT' : 'en-US';
-      if (selectedVoice[voiceLang]) u.voice = selectedVoice[voiceLang];
-      u.onend = () => setTimeout(() => next(i + 1), 250);
-      speechSynthesis.speak(u);
-    }
-    next(0);
+    // Chrome processes cancel() async — delay speak() so cancel IPC completes first
+    setTimeout(() => {
+      if (muted) return;
+      const sentences = text.split('. ').map((s, i, a) => i < a.length - 1 ? s + '.' : s).filter(s => s.trim());
+      function next(i) {
+        if (i >= sentences.length) { currentUtterance = null; return; }
+        currentUtterance = new SpeechSynthesisUtterance(sentences[i].trim());
+        currentUtterance.rate = 0.92; currentUtterance.pitch = 1.05;
+        currentUtterance.lang = voiceLang === 'it' ? 'it-IT' : 'en-US';
+        if (selectedVoice[voiceLang]) currentUtterance.voice = selectedVoice[voiceLang];
+        currentUtterance.onend = () => setTimeout(() => next(i + 1), 250);
+        speechSynthesis.speak(currentUtterance);
+      }
+      next(0);
+    }, 100);
   }
 
   function toggleMute() {
