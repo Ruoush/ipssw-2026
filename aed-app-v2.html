@@ -579,7 +579,7 @@
   function speak(text) {
     if (muted || !text || !window.speechSynthesis) return;
     speechSynthesis.cancel();
-    speechSynthesis.resume(); // Safari: cancel can leave synth in paused state
+    if (speechSynthesis.paused) speechSynthesis.resume(); // Safari: cancel can leave synth in paused state
     const sentences = text.split('. ').map((s, i, a) => i < a.length - 1 ? s + '.' : s).filter(s => s.trim());
     function next(i) {
       if (i >= sentences.length) return;
