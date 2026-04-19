@@ -607,8 +607,12 @@
   }
 
   // ── Audio ────────────────────────────────────────────────────────
+  // Mobile browsers start AudioContext suspended — unlock on first touch
+  document.addEventListener('touchstart', () => { if (audioCtx) audioCtx.resume(); }, { once: true });
+
   function getCtx() {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
     return audioCtx;
   }
   function beep(freq = 880, dur = 0.07, vol = 0.25) {
