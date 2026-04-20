@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AED Trainer — Debug Exercise</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0f0f0f;
+      color: #e5e7eb;
+      font-family: 'Courier New', 'Menlo', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .debug-banner {
+      background: #7c3aed;
+      color: #fff;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 8px 20px;
+      width: 100%;
+      max-width: 360px;
+      border-radius: 6px 6px 0 0;
+    }
+
+    .aed-device {
+      background: #1c1c1e;
+      border: 2px solid #374151;
+      border-radius: 0 0 14px 14px;
+      width: 100%;
+      max-width: 360px;
+      padding: 28px 24px;
+    }
+
+    .aed-header {
+      text-align: center;
+      color: #f59e0b;
+      font-size: 11px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid #374151;
+    }
+
+    .step-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #ffffff;
+      text-align: center;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+    }
+
+    .step-instruction {
+      font-size: 13px;
+      color: #9ca3af;
+      text-align: center;
+      line-height: 1.7;
+      margin-bottom: 24px;
+      min-height: 52px;
+    }
+
+    .btn-action {
+      display: block;
+      width: 100%;
+      background: #1d4ed8;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 14px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      margin-bottom: 10px;
+      font-family: inherit;
+    }
+    .btn-action:hover { background: #1e40af; }
+
+    .btn-shock { background: #dc2626; }
+    .btn-shock:hover { background: #b91c1c; }
+
+    .status-bar {
+      font-size: 10px;
+      color: #6b7280;
+      text-align: center;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 16px;
+    }
+
+    .hidden { display: none; }
+
+    #cpr-section { text-align: center; margin-bottom: 16px; }
+    .cpr-label  { font-size: 10px; color: #6b7280; letter-spacing: 2px; text-transform: uppercase; }
+    .cpr-timer  { font-size: 44px; font-weight: 700; color: #f59e0b; margin: 8px 0; }
+    .cpr-bar    { height: 8px; background: #374151; border-radius: 4px; margin: 10px 0; overflow: hidden; }
+    .cpr-fill   { height: 100%; background: #22c55e; border-radius: 4px; width: 0; transition: width 0.1s; }
+    .cpr-status { font-size: 13px; color: #9ca3af; height: 20px; }
+  </style>
+</head>
+<body>
+
+  <div class="debug-banner">Debug Exercise — 3 Errors to Find</div>
+
+  <div class="aed-device">
+    <div class="aed-header">AED Trainer</div>
+
+    <!-- Start Screen -->
+    <div id="start-screen">
+      <p class="step-instruction" style="margin-bottom:20px;">
+        This AED training tool has intentional bugs. Open the browser console
+        (Cmd+Option+J on Mac, Ctrl+Shift+J on Windows) and use the 4-step
+        framework to find and fix each one.
+      </p>
+      <button class="btn-action" onclick="startAED()">POWER ON ›</button>
+    </div>
+
+    <!-- Step Screen -->
+    <div id="step-screen" class="hidden">
+      <div class="step-title"       id="step-title"></div>
+      <div class="step-instruction" id="step-instruction"></div>
+
+      <!-- ERROR 2: onclick calls advanceStep() — that function does not exist.
+           Should be handleAction(). The app will load after Error 1 is fixed,
+           but clicking this button will throw a ReferenceError. -->
+      <button class="btn-action" id="action-btn" onclick="advanceStep()"></button>
+      <button class="btn-action btn-shock hidden" id="shock-btn" onclick="deliverShock()">⚡ DELIVER SHOCK</button>
+
+      <div id="cpr-section" class="hidden">
+        <div class="cpr-label">CPR Timer</div>
+        <div class="cpr-timer" id="cpr-timer">2:00</div>
+        <div class="cpr-bar"><div class="cpr-fill" id="cpr-fill"></div></div>
+        <div class="cpr-status" id="cpr-status"></div>
+      </div>
+    </div>
+
+    <div class="status-bar" id="status-bar">System Ready</div>
+  </div>
+
+<script>
+
+  // ── ERROR 3: Wrong BPM value — should be 110, not 40.
+  // 40 BPM = ~1,500ms between beats (very slow).
+  // 110 BPM = ~545ms between beats (correct CPR rate).
+  // No console error will appear — the app runs, but the metronome is wrong.
+  // To check: type  BEAT_MS  in the console while the CPR screen is running.
+  const BEAT_MS = Math.round(60000 / 40);
+
+  // AED step definitions
+  const STEPS = [
+    {
+      title:       'POWER ON',
+      instruction: "AED activated. Remove clothing from the patient's chest.",
+      btn:         'ATTACH PADS ›',
+      voice:       "AED powered on. Remove clothing from the patient's chest.",
+    },
+    {
+      title:       'ATTACH PADS',
+      instruction: 'Place one pad below the right collarbone. Place the second pad below the left armpit.',
+      btn:         'ANALYZING ›',
+      voice:       "Attach pads to the patient's bare skin.",
+    },
+    {
+      title:       'ANALYZING RHYTHM',
+      instruction: 'Do not touch the patient. Stand clear.',
+      btn:         null,
+      voice:       'Analyzing rhythm. Do not touch the patient.',
+    },
+    {
+      title:       'SHOCK ADVISED',
+      instruction: 'Stand clear of the patient. Press the shock button when ready.',
+      btn:         null,
+      voice:       'Shock advised. Stand clear of the patient.',
+    },
+    {
+      title:       'BEGIN CPR',
+      instruction: 'Push hard and fast in the center of the chest. Allow full recoil between compressions.',
+      btn:         'RESTART ›',
+      voice:       'Begin CPR. Push hard and fast.',
+    },
+  ];
+
+  // State
+  let current          = -1;
+  let timerSecs        = 120;
+  let timerTick        = null;
+  let beatTick         = null;
+  let audioCtx         = null;
+  let currentUtterance = null;
+
+  // Unlock audio on mobile
+  document.addEventListener('touchstart', () => { if (audioCtx) audioCtx.resume(); }, { once: true });
+
+  // ── Audio ─────────────────────────────────────────────────────────────
+  function getCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  function beep(freq, dur, vol) {
+    try {
+      const ctx  = getCtx();
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = freq || 880;
+      gain.gain.setValueAtTime(vol || 0.25, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (dur || 0.07));
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime  + (dur || 0.07));
+    } catch (e) {}
+  }
+
+  // ── Speech ────────────────────────────────────────────────────────────
+  function speak(text) {
+    if (!window.speechSynthesis || !text) return;
+    speechSynthesis.cancel();
+    if (speechSynthesis.paused) speechSynthesis.resume();
+    setTimeout(() => {
+      currentUtterance      = new SpeechSynthesisUtterance(text);
+      currentUtterance.rate = 0.9;
+      speechSynthesis.speak(currentUtterance);
+    }, 100);
+  }
+
+  // ── CPR Metronome ─────────────────────────────────────────────────────
+  function startMetronome() {
+    stopMetronome();
+    // Interval uses BEAT_MS — if the BPM value is wrong, the beat will be off
+    beatTick = setInterval(doBeat, BEAT_MS);
+  }
+
+  function stopMetronome() {
+    if (beatTick) { clearInterval(beatTick); beatTick = null; }
+  }
+
+  function doBeat() {
+    beep(660, 0.06, 0.3);
+    const fill = document.getElementById('cpr-fill');
+    fill.style.width = '100%';
+    setTimeout(() => { fill.style.width = '0%'; }, BEAT_MS * 0.4);
+    const status = document.getElementById('cpr-status');
+    status.textContent = '▼ PUSH';
+    setTimeout(() => { status.textContent = ''; }, 200);
+  }
+
+  // ── Timer ─────────────────────────────────────────────────────────────
+  function startTimer() {
+    timerSecs = 120;
+    updateTimer();
+    timerTick = setInterval(() => {
+      timerSecs--;
+      updateTimer();
+      if (timerSecs <= 0) {
+        stopTimer();
+        stopMetronome();
+        document.getElementById('cpr-status').textContent = 'CPR Complete — Reassess';
+      }
+    }, 1000);
+  }
+
+  function stopTimer() {
+    if (timerTick) { clearInterval(timerTick); timerTick = null; }
+  }
+
+  function updateTimer() {
+    const m = Math.floor(timerSecs / 60);
+    const s = timerSecs % 60;
+    document.getElementById('cpr-timer').textContent = m + ':' + String(s).padStart(2, '0');
+  }
+
+  // ── Step Navigation ───────────────────────────────────────────────────
+
+  // ERROR 1: Missing closing ) in the function signature below.
+  // The line reads:  function startAED(  {
+  // It should read:  function startAED() {
+  // This is a SyntaxError — the entire script fails to load and the app is blank.
+  function startAED(  {
+    document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('step-screen').classList.remove('hidden');
+    showStep(0);
+  }
+
+  // The action button calls advanceStep() (Error 2), but the real function is handleAction()
+  function handleAction() {
+    if (current === STEPS.length - 1) {
+      stopTimer();
+      stopMetronome();
+      document.getElementById('step-screen').classList.add('hidden');
+      document.getElementById('cpr-section').classList.add('hidden');
+      document.getElementById('start-screen').classList.remove('hidden');
+      document.getElementById('status-bar').textContent = 'System Ready';
+      current = -1;
+      return;
+    }
+    showStep(current + 1);
+  }
+
+  function deliverShock() {
+    beep(220, 0.4, 0.8);
+    setTimeout(() => beep(440, 0.3, 0.5), 120);
+    document.getElementById('shock-btn').classList.add('hidden');
+    document.getElementById('action-btn').classList.remove('hidden');
+    showStep(4);
+  }
+
+  function showStep(i) {
+    current = i;
+    const step = STEPS[i];
+
+    document.getElementById('step-title').textContent       = step.title;
+    document.getElementById('step-instruction').textContent = step.instruction;
+    document.getElementById('status-bar').textContent       = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+
+    const actionBtn  = document.getElementById('action-btn');
+    const shockBtn   = document.getElementById('shock-btn');
+    const cprSection = document.getElementById('cpr-section');
+
+    if (i === 3) {
+      actionBtn.classList.add('hidden');
+      shockBtn.classList.remove('hidden');
+    } else {
+      shockBtn.classList.add('hidden');
+      if (i !== 2) actionBtn.classList.remove('hidden');
+    }
+
+    if (step.btn) actionBtn.textContent = step.btn;
+
+    if (i === 2) {
+      actionBtn.classList.add('hidden');
+      setTimeout(() => showStep(3), 5000);
+    }
+
+    if (i === 4) {
+      cprSection.classList.remove('hidden');
+      startMetronome();
+      startTimer();
+    } else {
+      cprSection.classList.add('hidden');
+      stopMetronome();
+      stopTimer();
+    }
+
+    if (step.voice) speak(step.voice);
+  }
+
+</script>
+</body>
+</html>
