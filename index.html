@@ -701,6 +701,23 @@
     }
     .btn-copy:hover { background: rgba(255,255,255,0.25); }
 
+    /* Inline Code Editor (L8) */
+    .code-editor-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 22px 24px; margin-bottom: 20px; }
+    .code-editor-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+    .code-editor-panes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0 10px; }
+    .code-editor-pane { display: flex; flex-direction: column; gap: 6px; }
+    .code-editor-pane label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .code-editor-textarea { width: 100%; height: 260px; background: var(--code-bg); color: var(--code-text); border: 1px solid #374151; border-radius: 6px; padding: 12px 14px; font-family: 'Menlo','Consolas','Courier New',monospace; font-size: 12px; line-height: 1.6; resize: vertical; outline: none; box-sizing: border-box; }
+    .code-preview-frame { width: 100%; height: 260px; border: 1px solid var(--border); border-radius: 6px; background: #fff; }
+    .code-editor-toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+    .btn-run { background: var(--blue); color: #fff; border: none; border-radius: 6px; padding: 7px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-run:hover { opacity: 0.88; }
+    .btn-reset { background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 7px 14px; font-size: 13px; cursor: pointer; }
+    .btn-reset:hover { background: var(--bg); }
+    .btn-reveal { background: none; color: var(--muted); border: none; font-size: 12px; cursor: pointer; text-decoration: underline; padding: 7px 4px; }
+    .btn-reveal:hover { color: var(--text); }
+    @media (max-width: 640px) { .code-editor-panes { grid-template-columns: 1fr; } }
+
     /* Console Mock (L8) */
     .console-mock { border: 1px solid #374151; border-radius: 8px; overflow: hidden; margin: 14px 0; font-family: 'Menlo','Consolas','Courier New',monospace; font-size: 12.5px; }
     .console-tab-bar { background: #2d2d2d; padding: 6px 12px; display: flex; gap: 16px; border-bottom: 1px solid #374151; }
@@ -2188,6 +2205,30 @@ Requirements: works offline, opens in any browser, no external libraries.</texta
           </ol>
         </div>
 
+        <!-- Card 5b: Inline Code Editor -->
+        <div class="code-editor-card">
+          <h3>Try It — Fix This Broken Tool</h3>
+          <p style="font-size:14px;margin-bottom:6px;">Below is a broken CPR Timer. Edit the code, click <strong>Run</strong>, and use your real browser console to find the errors. There are three — one of each type you just learned.</p>
+          <div class="callout callout-amber" style="margin-bottom:10px;">
+            <strong>Open your console first:</strong> <span class="kbd">Cmd+Option+J</span> (Mac) or <span class="kbd">Ctrl+Shift+J</span> (Windows). Errors from the preview panel appear there in real time.
+          </div>
+          <div class="code-editor-panes">
+            <div class="code-editor-pane">
+              <label>Code Editor</label>
+              <textarea class="code-editor-textarea" id="cprEditor" spellcheck="false"></textarea>
+            </div>
+            <div class="code-editor-pane">
+              <label>Preview</label>
+              <iframe class="code-preview-frame" id="cprPreview" sandbox="allow-scripts"></iframe>
+            </div>
+          </div>
+          <div class="code-editor-toolbar">
+            <button class="btn-run" onclick="runCprEditor()">&#9654; Run</button>
+            <button class="btn-reset" onclick="resetCprEditor()">&#8635; Reset</button>
+            <button class="btn-reveal" onclick="revealCprAnswer()">Show fixed version</button>
+          </div>
+        </div>
+
         <!-- Card 6: Your Turn -->
         <div class="content-card card-purple">
           <h3 class="card-title">Your Turn — Fix the Broken AED App</h3>
@@ -2634,6 +2675,193 @@ clean and professional design, mobile-friendly.</pre>
       if (LESSONS.includes(h)) showLesson(h);
     });
   })();
+
+  // ── Inline Code Editor (L8) ──────────────────────────────────────────────
+  const CPR_BROKEN = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>CPR Timer</title>
+<style>
+  body {
+    font-family: sans-serif;
+    background: #1a1e23;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    gap: 20px;
+  }
+  h1 { font-size: 22px; margin: 0; }
+  #display { font-size: 52px; font-weight: 700; font-family: monospace; }
+  button {
+    background: #1d6fa4;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 28px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  #status { font-size: 14px; color: #9ca3af; }
+</style>
+</head>
+<body>
+<h1>CPR Metronome</h1>
+<div id="display">2:00</div>
+<div id="status">Press Start to begin</div>
+<button onclick="startTimerr()">Start</button>
+<script>
+const BEAT_MS = 1000;  // should be ~545 for 110 BPM
+
+let timeLeft = 120;
+let timerInterval = null;
+let beatInterval = null;
+const ctx = new AudioContext();
+
+function beep() {
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.connect(g); g.connect(ctx.destination);
+  o.frequency.value = 660;
+  g.gain.setValueAtTime(0.3, ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+  o.start(); o.stop(ctx.currentTime + 0.1);
+}
+
+function updateDisplay() {
+  const m = Math.floor(timeLeft / 60);
+  const s = timeLeft % 60;
+  document.getElementById('display').textContent =
+    m + ':' + String(s).padStart(2, '0');
+}
+
+function startTimer() {
+  if (timerInterval) return;
+  document.getElementById('status').textContent = 'Compressions — push hard and fast';
+  beatInterval = setInterval(beep, BEAT_MS);
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateDisplay();
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      clearInterval(beatInterval);
+      document.getElementById('status').textContent = 'Switch!';
+    }
+  }, 1000);
+// missing closing } here
+
+<\/script>
+</body>
+</html>`;
+
+  const CPR_FIXED = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>CPR Timer</title>
+<style>
+  body {
+    font-family: sans-serif;
+    background: #1a1e23;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    gap: 20px;
+  }
+  h1 { font-size: 22px; margin: 0; }
+  #display { font-size: 52px; font-weight: 700; font-family: monospace; }
+  button {
+    background: #1d6fa4;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 28px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  #status { font-size: 14px; color: #9ca3af; }
+</style>
+</head>
+<body>
+<h1>CPR Metronome</h1>
+<div id="display">2:00</div>
+<div id="status">Press Start to begin</div>
+<button onclick="startTimer()">Start</button>
+<script>
+const BEAT_MS = 545;  // ~110 BPM
+
+let timeLeft = 120;
+let timerInterval = null;
+let beatInterval = null;
+const ctx = new AudioContext();
+
+function beep() {
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.connect(g); g.connect(ctx.destination);
+  o.frequency.value = 660;
+  g.gain.setValueAtTime(0.3, ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+  o.start(); o.stop(ctx.currentTime + 0.1);
+}
+
+function updateDisplay() {
+  const m = Math.floor(timeLeft / 60);
+  const s = timeLeft % 60;
+  document.getElementById('display').textContent =
+    m + ':' + String(s).padStart(2, '0');
+}
+
+function startTimer() {
+  if (timerInterval) return;
+  document.getElementById('status').textContent = 'Compressions — push hard and fast';
+  beatInterval = setInterval(beep, BEAT_MS);
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateDisplay();
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      clearInterval(beatInterval);
+      document.getElementById('status').textContent = 'Switch!';
+    }
+  }, 1000);
+}
+
+<\/script>
+</body>
+</html>`;
+
+  function runCprEditor() {
+    document.getElementById('cprPreview').srcdoc =
+      document.getElementById('cprEditor').value;
+  }
+
+  function resetCprEditor() {
+    document.getElementById('cprEditor').value = CPR_BROKEN;
+    document.getElementById('cprPreview').srcdoc = '';
+  }
+
+  function revealCprAnswer() {
+    if (confirm('Show the fixed version? This will replace your current code.')) {
+      document.getElementById('cprEditor').value = CPR_FIXED;
+      runCprEditor();
+    }
+  }
+
+  // Initialize editor with broken code
+  (function() {
+    const ed = document.getElementById('cprEditor');
+    if (ed) ed.value = CPR_BROKEN;
+  })();
+  // ── End Inline Code Editor ───────────────────────────────────────────────
 
   function copyPrompt(id) {
     const el = document.getElementById(id);
